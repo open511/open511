@@ -6,9 +6,7 @@ setup(
     url='https://github.com/opennorth/open511-validator',
     license = "",
     packages = find_packages(),
-    package_data={
-        '': ['*.rng', '*.schematron']
-    },
+    include_package_data = True,
     install_requires = [
         'lxml>=2.3'
     ],
