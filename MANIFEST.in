@@ -1,1 +1,2 @@
 recursive-include open511_validator/schema *.rnc *.rng *.schematron
+recursive-include open511_validator/templates *.html

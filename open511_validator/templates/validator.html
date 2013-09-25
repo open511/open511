@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Open511 Validator</title>
+
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+	<div class="container">
+		<h1>Open511 validator <span class="label label-warning">alpha</span></h1>
+		<p></p>
+		<div class="row">
+			<div class="col-md-8">
+				<ul class="nav nav-tabs">
+					<li class="active"><a data-toggle="tab" href="#by_url">URL</a></li>
+					<li><a data-toggle="tab"href="#by_paste">Paste</a></li>
+					<li><a data-toggle="tab"href="#by_upload">Upload</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="row" style="margin-bottom: 15px">
+			<div class="col-md-8">
+				<p></p>
+				<div class="tab-content">
+					<div class="tab-pane active" id="by_url">
+						<form role="form" method="POST">
+							<input type="text" id="url" name="url" placeholder="URL" class="form-control">
+							<div style="text-align: center; margin-top: 10px"><button type="submit" class="btn btn-primary btn-lg">Validate</button></div>
+						</form>
+					</div>
+					<div class="tab-pane" id="by_paste">
+						<form role="form" method="POST">
+							<textarea class="form-control" name="doc_content" style="height: 300px"></textarea>
+							<div style="text-align: center; margin-top: 10px"><button type="submit" class="btn btn-primary btn-lg">Validate</button></div>
+						</form>
+					</div>
+					<div class="tab-pane" id="by_upload">
+						<form role="form" method="POST" enctype="multipart/form-data">
+							<input type="file" class="form-control" name="upload">
+							<div style="text-align: center; margin-top: 10px"><button type="submit" class="btn btn-primary btn-lg">Validate</button></div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{% if success %}
+		<div class="well"><h2 style="color: green">Yes! This document is valid.</h2></div>
+		{% endif %}
+
+		{% if error %}
+		<div class="well"><h2 style="color: red">Uh-oh. This document doesn't validate.</h2>
+			<p>Here's the error:</p> <blockquote><p>{{ error }}</p></blockquote>
+			<p>The errors produced by the current validator are often stunningly unhelpful. If you're not sure what the problem is, we're eager to help: please send your document to <a href="mailto:open511@opennorth.ca">open511@opennorth.ca</a>.</p>
+		</div>
+		{% endif %}
+
+		{% if doc_content %}
+		<pre class="pre-scrollable">{{ doc_content }}</pre>
+		{% endif %}
+
+	</div>
+
+</body>
+</html>

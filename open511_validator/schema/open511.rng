@@ -83,10 +83,10 @@
   </define>
   <define name="Jurisdiction">
     <element name="jurisdiction">
-      <element name="id">
-        <ref name="JurisdictionIDType"/>
-      </element>
       <interleave>
+        <element name="id">
+          <ref name="JurisdictionIDType"/>
+        </element>
         <oneOrMore>
           <element name="name">
             <ref name="FreeTextType"/>
@@ -100,11 +100,11 @@
             <text/>
           </element>
         </optional>
-        <optional>
+        <zeroOrMore>
           <element name="description">
-            <text/>
+            <ref name="FreeTextType"/>
           </element>
-        </optional>
+        </zeroOrMore>
         <optional>
           <!-- FIXME type -->
           <element name="timezone">
@@ -371,12 +371,16 @@
         </optional>
         <optional>
           <element name="lanes_closed">
-            <data type="int"/>
+            <data type="int">
+              <param name="minInclusive">1</param>
+            </data>
           </element>
         </optional>
         <optional>
           <element name="lanes_open">
-            <data type="int"/>
+            <data type="int">
+              <param name="minInclusive">1</param>
+            </data>
           </element>
         </optional>
         <optional>

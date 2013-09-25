@@ -4,7 +4,7 @@ import sys
 from lxml import etree
 
 from open511_validator import validate, Open511ValidationError
-from open511_validator.converter import xml_to_json
+from .converter import xml_to_json
 
 def validate_cmdline():
     if len(sys.argv) > 1:

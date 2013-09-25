@@ -41,21 +41,19 @@ MinimalJurisdiction =
 	}
 Jurisdiction = 
 	element jurisdiction {
-		element id { JurisdictionIDType },
-		(
-			element name { FreeTextType }+
-			& element email { EmailType }
-			& element phone { text }?
-			& element description { text }?
-			# FIXME type
-			& element timezone { text }?
-			& element languages {
-				element language { xsd:language }+
-			}?
-			# license, geography, self req'd; description optional
-			& Link+
-			& ForeignElement*
-		)
+		element id { JurisdictionIDType }
+		& element name { FreeTextType }+
+		& element email { EmailType }
+		& element phone { text }?
+		& element description { FreeTextType }*
+		# FIXME type
+		& element timezone { text }?
+		& element languages {
+			element language { xsd:language }+
+		}?
+		# license, geography, self req'd; description optional
+		& Link+
+		& ForeignElement*
 	}
 JurisdictionGeography =
 	element geography {
@@ -107,8 +105,8 @@ Road =
 		& element to { FreeTextType }*
 		& element direction { "N" | "E" | "W" | "S" | "NW" | "SW" | "NE" | "SE" | "NONE" | "BOTH" }?
 		& element state { "CLOSED" | "SOME_LANES_CLOSED" | "SINGLE_LANE_ALTERNATING" | "ALL_LANES_OPEN" }?
-		& element lanes_closed { xsd:int }?
-		& element lanes_open { xsd:int }?
+		& element lanes_closed { xsd:int { minInclusive="1" } }?
+		& element lanes_open { xsd:int { minInclusive="1" } }?
 		& element impacted_systems {
 			element impacted_system { "ROAD" | "SIDEWALK" | "BIKELANE" | "ON_STREET_PARKING" | "PARKING" }+
 		}?
