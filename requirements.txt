@@ -1,0 +1,11 @@
+# This file defines Python dependencies only for the web interface
+# If you just want to use the commandline tool or Python API,
+# you don't need these packages -- just install via setup.py.
+#
+# We use gunicorn and gevent in our default configuration, but they're not
+# actually required -- use any WSGI server you want.
+Flask>=0.10
+requests>=2,<3
+lxml>=2.3
+gunicorn>=18,<19
+gevent

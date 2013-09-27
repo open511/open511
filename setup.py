@@ -13,7 +13,7 @@ setup(
     entry_points = {
         'console_scripts': [
             'open511-validate = open511_validator.cmdline:validate_cmdline',
-            #'open511-convert = open511_validator.cmdline:convert_cmdline'
+            'open511-convert = open511_validator.cmdline:convert_cmdline'
         ]
     },
 )

@@ -7,27 +7,29 @@ start =
 		XMLLang?,
 		attribute version { "v0" },
 		(
-			# The discovery page
-			((element jurisdictions {
-				MinimalJurisdiction+
-			},
-			element services {
-				ServiceDefinition+
-			},
-			SelfLink)
-			& ForeignElement*)
-		|
 			(
-			# A resource-list page
-				(RoadEvent* | Area* | ForeignElement*),
-				Pagination,
-				Link+
+			# The discovery page
+			element jurisdictions {
+				MinimalJurisdiction+
+			}
+			& element services {
+				ServiceDefinition+
+			}
+			& SelfLink
+			& ForeignElement*
 			)
 		|
-			(
-			# A single-resource page
-				(RoadEvent | Jurisdiction | JurisdictionGeography | ForeignElement),
-				Link+
+		(
+			# Any other page
+				(
+					element events { RoadEvent* } | 
+					element areas { Area* } | 
+					element jurisdictions { Jurisdiction* } |
+					element geographies { JurisdictionGeography* }
+				)
+				& Pagination?
+				& Link+
+				& ForeignElement*
 			)
 		)
 	}
@@ -41,6 +43,7 @@ MinimalJurisdiction =
 	}
 Jurisdiction = 
 	element jurisdiction {
+		XMLLang?,
 		element id { JurisdictionIDType }
 		& element name { FreeTextType }+
 		& element email { EmailType }

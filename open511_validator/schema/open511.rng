@@ -14,55 +14,57 @@
         <value>v0</value>
       </attribute>
       <choice>
-        <!-- The discovery page -->
         <interleave>
-          <group>
-            <element name="jurisdictions">
-              <oneOrMore>
-                <ref name="MinimalJurisdiction"/>
-              </oneOrMore>
-            </element>
-            <element name="services">
-              <oneOrMore>
-                <ref name="ServiceDefinition"/>
-              </oneOrMore>
-            </element>
-            <ref name="SelfLink"/>
-          </group>
+          <!-- The discovery page -->
+          <element name="jurisdictions">
+            <oneOrMore>
+              <ref name="MinimalJurisdiction"/>
+            </oneOrMore>
+          </element>
+          <element name="services">
+            <oneOrMore>
+              <ref name="ServiceDefinition"/>
+            </oneOrMore>
+          </element>
+          <ref name="SelfLink"/>
           <zeroOrMore>
             <ref name="ForeignElement"/>
           </zeroOrMore>
         </interleave>
-        <group>
-          <!-- A resource-list page -->
+        <interleave>
+          <!-- Any other page -->
           <choice>
-            <zeroOrMore>
-              <ref name="RoadEvent"/>
-            </zeroOrMore>
-            <zeroOrMore>
-              <ref name="Area"/>
-            </zeroOrMore>
-            <zeroOrMore>
-              <ref name="ForeignElement"/>
-            </zeroOrMore>
+            <element name="events">
+              <zeroOrMore>
+                <ref name="RoadEvent"/>
+              </zeroOrMore>
+            </element>
+            <element name="areas">
+              <zeroOrMore>
+                <ref name="Area"/>
+              </zeroOrMore>
+            </element>
+            <element name="jurisdictions">
+              <zeroOrMore>
+                <ref name="Jurisdiction"/>
+              </zeroOrMore>
+            </element>
+            <element name="geographies">
+              <zeroOrMore>
+                <ref name="JurisdictionGeography"/>
+              </zeroOrMore>
+            </element>
           </choice>
-          <ref name="Pagination"/>
+          <optional>
+            <ref name="Pagination"/>
+          </optional>
           <oneOrMore>
             <ref name="Link"/>
           </oneOrMore>
-        </group>
-        <group>
-          <!-- A single-resource page -->
-          <choice>
-            <ref name="RoadEvent"/>
-            <ref name="Jurisdiction"/>
-            <ref name="JurisdictionGeography"/>
+          <zeroOrMore>
             <ref name="ForeignElement"/>
-          </choice>
-          <oneOrMore>
-            <ref name="Link"/>
-          </oneOrMore>
-        </group>
+          </zeroOrMore>
+        </interleave>
       </choice>
     </element>
   </start>
