@@ -44,7 +44,7 @@ MinimalJurisdiction =
 Jurisdiction = 
 	element jurisdiction {
 		XMLLang?,
-		element id { JurisdictionIDType }
+		(element id { JurisdictionIDType }
 		& element name { FreeTextType }+
 		& element email { EmailType }
 		& element phone { text }?
@@ -56,7 +56,7 @@ Jurisdiction =
 		}?
 		# license, geography, self req'd; description optional
 		& Link+
-		& ForeignElement*
+		& ForeignElement*)
 	}
 JurisdictionGeography =
 	element geography {
@@ -159,8 +159,7 @@ Area =
 
 ServiceDefinition = 
 	element service {
-		element service_type { text }
-		& SelfLink
+		Link+
 		& element supported_versions {
 			element supported_version { text }+
 		}?

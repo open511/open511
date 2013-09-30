@@ -13,6 +13,11 @@
 		<rule context="open511/link">
 			<assert test="@rel = 'self' or @rel = 'up'">Only the 'self' and 'up' links can appear inside open511</assert>
 		</rule>
+		<rule context="open511/services/service">
+			<assert test="link[@rel='service_type']">A service definition requires a service_type link</assert>
+			<assert test="link[@rel='self']">A service definition requires a self link</assert>
+			<assert test="count(link) = 2">A service definition may include only two links (service_type and self)</assert>
+		</rule>
 		<rule context="area|jurisdiction|event">
 			<assert test="link[@rel='self']">A self link is required</assert>
 		</rule>

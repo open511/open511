@@ -85,6 +85,9 @@
   </define>
   <define name="Jurisdiction">
     <element name="jurisdiction">
+      <optional>
+        <ref name="XMLLang"/>
+      </optional>
       <interleave>
         <element name="id">
           <ref name="JurisdictionIDType"/>
@@ -507,10 +510,9 @@
   <define name="ServiceDefinition">
     <element name="service">
       <interleave>
-        <element name="service_type">
-          <text/>
-        </element>
-        <ref name="SelfLink"/>
+        <oneOrMore>
+          <ref name="Link"/>
+        </oneOrMore>
         <optional>
           <element name="supported_versions">
             <oneOrMore>
