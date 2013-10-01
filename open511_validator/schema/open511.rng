@@ -187,68 +187,38 @@
               <element name="event_subtype">
                 <choice>
                   <value>ACCIDENT</value>
-                  <value>SERIOUS_ACCIDENT</value>
-                  <value>NUMEROUS_ACCIDENTS</value>
-                  <value>STALLED_VEHICLE</value>
                   <value>SPILL</value>
                   <value>OBSTRUCTION</value>
-                  <value>MAJOR_HAZARD</value>
-                  <value>DEMONSTRATION</value>
+                  <value>HAZARD</value>
+                  <value>ROAD_MAINTENANCE</value>
                   <value>ROAD_CONSTRUCTION</value>
-                  <value>WORK_IN_THE_MEDIAN</value>
-                  <value>NARROW_LANES</value>
-                  <value>TRAFFIC_ALTERNATING_DIRECTIONS</value>
-                  <value>BRIDGE_OPERATIONS</value>
-                  <value>BLASTING</value>
-                  <value>WORK_ON_UNDERGROUND</value>
                   <value>EMERGENCY_MAINTENANCE</value>
-                  <value>SPORTING_EVENT</value>
-                  <value>MAJOR_EVENT</value>
-                  <value>CONCERT</value>
-                  <value>FESTIVAL</value>
-                  <value>FIREWORKS</value>
-                  <value>PARADE</value>
+                  <value>PLANNED_EVENT</value>
                   <value>CROWD</value>
-                  <value>SEVERE_WEATHER</value>
-                  <value>HEAVY_SNOW</value>
-                  <value>SNOW</value>
-                  <value>ICE_GLAZE</value>
-                  <value>HEAVY_FROST</value>
-                  <value>ICE_STORM</value>
-                  <value>DAMAGING_HAIL</value>
+                  <value>HAIL</value>
                   <value>THUNDERSTORM</value>
                   <value>HEAVY_DOWNPOUR</value>
-                  <value>TORNADO</value>
-                  <value>HURRICANE</value>
                   <value>STRONG_WINDS</value>
-                  <value>DENSE_FOG</value>
-                  <value>FREEZING_FOG</value>
-                  <value>ICE_FOG MIST</value>
-                  <value>VISIBILITY_REDUCED</value>
-                  <value>VISIBILITY_BLOCKED</value>
-                  <value>BLOWING_SNOW</value>
                   <value>BLOWING_DUST</value>
                   <value>SANDSTORM</value>
                   <value>INSECT_SWARMS</value>
-                  <value>IMPASSABLE</value>
-                  <value>ALMOST_IMPASSABLE</value>
-                  <value>PASSABLE_WITH_CARE</value>
+                  <value>AVALANCHE_HAZARD</value>
                   <value>SURFACE_WATER_HAZARD</value>
-                  <value>HYDROPLANING_DANGER</value>
-                  <value>SLIPPERY</value>
                   <value>MUD</value>
                   <value>LOOSE_GRAVEL</value>
                   <value>OIL_ON_ROADWAY</value>
-                  <value>ICE</value>
-                  <value>BLACK_ICE</value>
-                  <value>WET_ICY_ROAD</value>
-                  <value>SLUSH</value>
-                  <value>FROZEN_SLUSH</value>
-                  <value>SNOW</value>
-                  <value>PACKED_SNOW</value>
-                  <value>PLOWED_SNOW</value>
-                  <value>POWDER_SNOW</value>
-                  <value>DEEP_SNOW</value>
+                  <value>FIRE</value>
+                  <value>SIGNAL_LIGHT_FAILURE</value>
+                  <value>PARTLY_ICY</value>
+                  <value>ICE_COVERED</value>
+                  <value>PARTLY_SNOW_PACKED</value>
+                  <value>SNOW_PACKED</value>
+                  <value>PARTLY_SNOW_COVERED</value>
+                  <value>SNOW_COVERED</value>
+                  <value>DRIFTING_SNOW</value>
+                  <value>POOR_VISIBILITY</value>
+                  <value>ALMOST_IMPASSABLE</value>
+                  <value>PASSABLE_WITH_CARE</value>
                 </choice>
               </element>
             </oneOrMore>
@@ -396,7 +366,6 @@
                   <value>ROAD</value>
                   <value>SIDEWALK</value>
                   <value>BIKELANE</value>
-                  <value>ON_STREET_PARKING</value>
                   <value>PARKING</value>
                 </choice>
               </element>
