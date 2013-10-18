@@ -641,22 +641,21 @@
       </oneOrMore>
     </element>
   </define>
+  <define name="GMLLinearRing">
+    <element name="gml:LinearRing">
+      <element name="gml:coordinates">
+        <ref name="GMLCoordList"/>
+      </element>
+    </element>
+  </define>
   <define name="GMLOuterBoundary">
     <element name="gml:outerBoundaryIs">
-      <element name="gml:LinearRing">
-        <element name="gml:coordinates">
-          <ref name="GMLCoordList"/>
-        </element>
-      </element>
+      <ref name="GMLLinearRing"/>
     </element>
   </define>
   <define name="GMLInnerBoundary">
     <element name="gml:innerBoundaryIs">
-      <element name="gml:LinearRing">
-        <element name="gml:coordinates">
-          <ref name="GMLCoordList"/>
-        </element>
-      </element>
+      <ref name="GMLLinearRing"/>
     </element>
   </define>
   <define name="GMLPolygon">

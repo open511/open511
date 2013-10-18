@@ -176,7 +176,7 @@ def json_link_to_xml(val, rel='related'):
     tag.set('rel', rel)
     if hasattr(val, 'get') and 'url' in val:
         tag.set('href', val['url'])
-        for attr in ('type', 'title', 'length'):
+        for attr in ('type', 'title', 'length', 'hreflang'):
             if val.get(attr):
                 tag.set(attr, unicode(val[attr]))
     else:

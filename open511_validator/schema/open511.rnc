@@ -230,18 +230,12 @@ GMLMultiLineString = element gml:MultiLineString {
 		}
 	}+
 }
-GMLOuterBoundary = 	
-	element gml:outerBoundaryIs {
-		element gml:LinearRing {
-			element gml:coordinates { GMLCoordList }
-		}
+GMLLinearRing = 
+	element gml:LinearRing {
+		element gml:coordinates { GMLCoordList }
 	}
-GMLInnerBoundary = 
-	element gml:innerBoundaryIs {
-		element gml:LinearRing {
-			element gml:coordinates { GMLCoordList }
-		}
-	}
+GMLOuterBoundary = element gml:outerBoundaryIs { GMLLinearRing }
+GMLInnerBoundary = element gml:innerBoundaryIs { GMLLinearRing }
 GMLPolygon = element gml:Polygon {
 	srsName,
 	GMLOuterBoundary+,

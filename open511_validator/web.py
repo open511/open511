@@ -27,6 +27,8 @@ def validator():
         else:
             raise NotImplementedError
         try:
+            if not isinstance(doc_content, unicode):
+                doc_content = doc_content.decode('utf8')
             doc, doc_format = deserialize(doc_content)
         except Exception as e:
             return render_template('validator.html', doc_content=doc_content, deserialize_error=unicode(e))
