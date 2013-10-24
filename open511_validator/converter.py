@@ -21,7 +21,7 @@ def _maybe_intify(t):
     return int(t) if hasattr(t, 'isdigit') and t.isdigit() else t
 
 def pluralize(s):
-    return s[:-1] + 'ies' if s.endswith('y') else s + 's'
+    return s[:-1] + 'ies' if s.endswith('phy') else s + 's'
 
 def xml_to_json(root):
     """Convert an Open511 XML document or document fragment to JSON.
