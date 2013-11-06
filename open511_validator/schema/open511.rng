@@ -154,7 +154,7 @@
           <ref name="Link"/>
         </oneOrMore>
         <element name="id">
-          <ref name="EventIDType"/>
+          <ref name="Open511IDType"/>
         </element>
         <element name="status">
           <choice>
@@ -462,14 +462,16 @@
       </optional>
       <interleave>
         <element name="id">
-          <data type="integer"/>
+          <ref name="Open511IDType"/>
         </element>
         <oneOrMore>
           <element name="name">
             <ref name="FreeTextType"/>
           </element>
         </oneOrMore>
-        <ref name="SelfLink"/>
+        <optional>
+          <ref name="SelfLink"/>
+        </optional>
         <zeroOrMore>
           <ref name="ForeignElement"/>
         </zeroOrMore>
@@ -707,7 +709,7 @@
       <param name="pattern">[a-z][a-z0-9\-]*\.[a-z0-9.\-]{2,}</param>
     </data>
   </define>
-  <define name="EventIDType">
+  <define name="Open511IDType">
     <data type="string">
       <param name="pattern">[a-z][a-z0-9\-]*\.[a-z0-9\.\-]{2,}/[a-zA-Z0-9_\.\-]+</param>
     </data>
