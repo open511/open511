@@ -78,8 +78,8 @@ RoadEvent =
 		}?
 		& element severity { "MINOR" | "MODERATE" | "MAJOR" | "UNKNOWN" }
 		& element certainty { "OBSERVED" | "LIKELY" | "POSSIBLE" | "UNKNOWN"}?
-		& element created { UTCTimestampType }
-		& element updated { UTCTimestampType }
+		& element created { TimestampType }
+		& element updated { TimestampType }
 		& element detour { FreeTextType }*
 		& element geography { AnyGML }
 		& element grouped_events {
@@ -261,7 +261,7 @@ ForeignElement =
 
 JurisdictionIDType = xsd:string {pattern = "[a-z][a-z0-9\-]*\.[a-z0-9.\-]{2,}"}
 EventIDType = xsd:string {pattern = "[a-z][a-z0-9\-]*\.[a-z0-9\.\-]{2,}/[a-zA-Z0-9_\.\-]+"}
-UTCTimestampType = xsd:dateTime {pattern = ".+T.+(Z|[+\-]00:?0?0?)"}
+TimestampType = xsd:dateTime {pattern = ".+T.+(Z|[+\-][01]\d:?\d?\d?)"}
 EmailType = xsd:string {pattern = "[a-zA-Z0-9\._%+\-]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,4}"}
 XMLLang = attribute xml:lang { xsd:language }
 FreeTextType =
