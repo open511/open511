@@ -58,8 +58,12 @@ def xml_to_json(root):
         elif elem.tag == 'link' and not elem.text:
             j[name] = elem.get('href')
         elif len(elem):
-            if name in ('attachments', 'grouped_events'):
-                j[name] = [xml_link_to_json(child, to_dict=(name == 'attachments')) for child in elem]
+            if name == 'grouped_events':
+                # An array of URLs
+                j[name] = [xml_link_to_json(child, to_dict=False) for child in elem]
+            elif name in ('attachments', 'media_files'):
+                # An array of JSON objects
+                j[name] = [xml_link_to_json(child, to_dict=True) for child in elem]
             elif all((name == pluralize(child.tag) for child in elem)):
                 # <something><somethings> serializes to a JSON array
                 j[name] = [xml_to_json(child) for child in elem]
@@ -135,7 +139,7 @@ def json_struct_to_xml(json_obj, root, custom_namespace=None):
             root = etree.Element('{%s}%s' % (custom_namespace, root[1:]))
         else:
             root = etree.Element(root)
-    if root.tag in ('attachments', 'grouped_events'):
+    if root.tag in ('attachments', 'grouped_events', 'media_files'):
         for link in json_obj:
             root.append(json_link_to_xml(link))
     elif isinstance(json_obj, basestring):
