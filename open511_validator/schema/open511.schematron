@@ -18,7 +18,7 @@
 			<assert test="link[@rel='self']">A service definition requires a self link</assert>
 			<assert test="count(link) = 2">A service definition may include only two links (service_type and self)</assert>
 		</rule>
-		<rule context="area|jurisdiction|event">
+		<rule context="jurisdiction|event">
 			<assert test="link[@rel='self']">A self link is required</assert>
 		</rule>
 		<rule context="open511/jurisdiction">

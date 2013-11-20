@@ -54,6 +54,11 @@
                 <ref name="JurisdictionGeography"/>
               </zeroOrMore>
             </element>
+            <element name="cameras">
+              <zeroOrMore>
+                <ref name="Camera"/>
+              </zeroOrMore>
+            </element>
           </choice>
           <optional>
             <ref name="Pagination"/>
@@ -320,18 +325,7 @@
         </zeroOrMore>
         <optional>
           <element name="direction">
-            <choice>
-              <value>N</value>
-              <value>E</value>
-              <value>W</value>
-              <value>S</value>
-              <value>NW</value>
-              <value>SW</value>
-              <value>NE</value>
-              <value>SE</value>
-              <value>NONE</value>
-              <value>BOTH</value>
-            </choice>
+            <ref name="RoadDirectionsType"/>
           </element>
         </optional>
         <optional>
@@ -489,6 +483,62 @@
             <oneOrMore>
               <element name="supported_version">
                 <text/>
+              </element>
+            </oneOrMore>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+  <define name="Camera">
+    <element name="camera">
+      <optional>
+        <ref name="XMLLang"/>
+      </optional>
+      <interleave>
+        <element name="id">
+          <ref name="Open511IDType"/>
+        </element>
+        <oneOrMore>
+          <ref name="Link"/>
+        </oneOrMore>
+        <zeroOrMore>
+          <element name="name">
+            <ref name="FreeTextType"/>
+          </element>
+        </zeroOrMore>
+        <element name="geography">
+          <ref name="GMLPoint"/>
+        </element>
+        <element name="media_files">
+          <oneOrMore>
+            <ref name="VerboseRelatedLink"/>
+          </oneOrMore>
+        </element>
+        <optional>
+          <element name="areas">
+            <oneOrMore>
+              <ref name="Area"/>
+            </oneOrMore>
+          </element>
+        </optional>
+        <optional>
+          <element name="roads">
+            <oneOrMore>
+              <element name="road">
+                <interleave>
+                  <oneOrMore>
+                    <element name="name">
+                      <ref name="FreeTextType"/>
+                    </element>
+                  </oneOrMore>
+                  <optional>
+                    <ref name="SelfLink"/>
+                  </optional>
+                  <element name="direction">
+                    <ref name="RoadDirectionsType"/>
+                  </element>
+                </interleave>
               </element>
             </oneOrMore>
           </element>
@@ -728,6 +778,20 @@
     <attribute name="xml:lang">
       <data type="language"/>
     </attribute>
+  </define>
+  <define name="RoadDirectionsType">
+    <choice>
+      <value>N</value>
+      <value>E</value>
+      <value>W</value>
+      <value>S</value>
+      <value>NW</value>
+      <value>SW</value>
+      <value>NE</value>
+      <value>SE</value>
+      <value>NONE</value>
+      <value>BOTH</value>
+    </choice>
   </define>
   <define name="FreeTextType">
     <optional>
