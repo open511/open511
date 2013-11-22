@@ -164,6 +164,7 @@ ServiceDefinition =
 		& element supported_versions {
 			element supported_version { text }+
 		}?
+		& ForeignElement*
 	}
 
 Camera = 
@@ -181,7 +182,8 @@ Camera =
 				& SelfLink?
 				& element direction { RoadDirectionsType }
 			}+
-		}?)
+		}?
+		& ForeignElement*)
 	}
 
 

@@ -487,6 +487,9 @@
             </oneOrMore>
           </element>
         </optional>
+        <zeroOrMore>
+          <ref name="ForeignElement"/>
+        </zeroOrMore>
       </interleave>
     </element>
   </define>
@@ -543,6 +546,9 @@
             </oneOrMore>
           </element>
         </optional>
+        <zeroOrMore>
+          <ref name="ForeignElement"/>
+        </zeroOrMore>
       </interleave>
     </element>
   </define>

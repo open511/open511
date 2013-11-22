@@ -20,6 +20,7 @@
 		</rule>
 		<rule context="jurisdiction|event">
 			<assert test="link[@rel='self']">A self link is required</assert>
+			<assert test="count(link[@rel='self']) = 1">An event must contain a single self link</assert>
 		</rule>
 		<rule context="open511/jurisdiction">
 			<assert test="link[@rel='geography']">Jurisdictions require a geography link</assert>
