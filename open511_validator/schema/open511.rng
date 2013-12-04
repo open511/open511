@@ -640,27 +640,31 @@
   </define>
   <define name="srsName">
     <attribute name="srsName">
-      <value>EPSG:4326</value>
+      <value>urn:ogc:def:crs:EPSG::4326</value>
     </attribute>
   </define>
-  <define name="GMLCoord">
-    <data type="string">
-      <param name="pattern">-?[0-9]+\.[0-9]+,-?[0-9]+\.[0-9]+</param>
-    </data>
+  <define name="GMLPos">
+    <element name="gml:pos">
+      <list>
+        <data type="double"/>
+        <data type="double"/>
+      </list>
+    </element>
   </define>
-  <define name="GMLCoordList">
-    <list>
-      <oneOrMore>
-        <ref name="GMLCoord"/>
-      </oneOrMore>
-    </list>
+  <define name="GMLPosList">
+    <element name="gml:posList">
+      <list>
+        <oneOrMore>
+          <data type="double"/>
+          <data type="double"/>
+        </oneOrMore>
+      </list>
+    </element>
   </define>
   <define name="GMLPoint">
     <element name="gml:Point">
       <ref name="srsName"/>
-      <element name="gml:coordinates">
-        <ref name="GMLCoord"/>
-      </element>
+      <ref name="GMLPos"/>
     </element>
   </define>
   <define name="GMLMultiPoint">
@@ -669,9 +673,7 @@
       <oneOrMore>
         <element name="gml:pointMember">
           <element name="gml:Point">
-            <element name="gml:coordinates">
-              <ref name="GMLCoord"/>
-            </element>
+            <ref name="GMLPos"/>
           </element>
         </element>
       </oneOrMore>
@@ -680,9 +682,7 @@
   <define name="GMLLineString">
     <element name="gml:LineString">
       <ref name="srsName"/>
-      <element name="gml:coordinates">
-        <ref name="GMLCoordList"/>
-      </element>
+      <ref name="GMLPosList"/>
     </element>
   </define>
   <define name="GMLMultiLineString">
@@ -691,9 +691,7 @@
       <oneOrMore>
         <element name="gml:lineStringMember">
           <element name="gml:LineString">
-            <element name="gml:coordinates">
-              <ref name="GMLCoordList"/>
-            </element>
+            <ref name="GMLPosList"/>
           </element>
         </element>
       </oneOrMore>
@@ -701,27 +699,23 @@
   </define>
   <define name="GMLLinearRing">
     <element name="gml:LinearRing">
-      <element name="gml:coordinates">
-        <ref name="GMLCoordList"/>
-      </element>
+      <ref name="GMLPosList"/>
     </element>
   </define>
   <define name="GMLOuterBoundary">
-    <element name="gml:outerBoundaryIs">
+    <element name="gml:exterior">
       <ref name="GMLLinearRing"/>
     </element>
   </define>
   <define name="GMLInnerBoundary">
-    <element name="gml:innerBoundaryIs">
+    <element name="gml:interior">
       <ref name="GMLLinearRing"/>
     </element>
   </define>
   <define name="GMLPolygon">
     <element name="gml:Polygon">
       <ref name="srsName"/>
-      <oneOrMore>
-        <ref name="GMLOuterBoundary"/>
-      </oneOrMore>
+      <ref name="GMLOuterBoundary"/>
       <zeroOrMore>
         <ref name="GMLInnerBoundary"/>
       </zeroOrMore>

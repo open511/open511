@@ -224,42 +224,40 @@ Pagination =
 
 
 AnyGML = (GMLPoint | GMLMultiPoint | GMLLineString | GMLMultiLineString | GMLPolygon | GMLMultiPolygon)
-srsName = attribute srsName { "EPSG:4326" }
-GMLCoord = xsd:string {pattern = "-?[0-9]+\.[0-9]+,-?[0-9]+\.[0-9]+"}
-GMLCoordList = list { GMLCoord+ }
+srsName = attribute srsName { "urn:ogc:def:crs:EPSG::4326" }
+GMLPos = element gml:pos { list { xsd:double, xsd:double } }
+GMLPosList = element gml:posList{ list { (xsd:double, xsd:double)+ } }
 GMLPoint = element gml:Point {
 	srsName,
-	element gml:coordinates { GMLCoord }
+	GMLPos
 }
 GMLMultiPoint = element gml:MultiPoint {
 	srsName,
 	element gml:pointMember {
-		element gml:Point {
-			element gml:coordinates { GMLCoord }
-		}
+		element gml:Point { GMLPos }
 	}+
 }
 GMLLineString = element gml:LineString {
 	srsName,
-	element gml:coordinates { GMLCoordList }
+	GMLPosList
 }
 GMLMultiLineString = element gml:MultiLineString {
 	srsName,
 	element gml:lineStringMember {
 		element gml:LineString {
-			element gml:coordinates { GMLCoordList }
+			GMLPosList
 		}
 	}+
 }
 GMLLinearRing = 
 	element gml:LinearRing {
-		element gml:coordinates { GMLCoordList }
+		GMLPosList
 	}
-GMLOuterBoundary = element gml:outerBoundaryIs { GMLLinearRing }
-GMLInnerBoundary = element gml:innerBoundaryIs { GMLLinearRing }
+GMLOuterBoundary = element gml:exterior { GMLLinearRing }
+GMLInnerBoundary = element gml:interior { GMLLinearRing }
 GMLPolygon = element gml:Polygon {
 	srsName,
-	GMLOuterBoundary+,
+	GMLOuterBoundary,
 	GMLInnerBoundary*
 }
 GMLMultiPolygon = element gml:MultiPolygon {
