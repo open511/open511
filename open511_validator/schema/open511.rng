@@ -11,7 +11,10 @@
         <ref name="XMLLang"/>
       </optional>
       <attribute name="version">
-        <value>v0</value>
+        <choice>
+          <value>v0</value>
+          <value>v1</value>
+        </choice>
       </attribute>
       <choice>
         <interleave>
@@ -510,12 +513,46 @@
             <ref name="FreeTextType"/>
           </element>
         </oneOrMore>
+        <zeroOrMore>
+          <element name="description">
+            <ref name="FreeTextType"/>
+          </element>
+        </zeroOrMore>
         <element name="geography">
           <ref name="GMLPoint"/>
         </element>
         <element name="media_files">
           <oneOrMore>
-            <ref name="VerboseRelatedLink"/>
+            <element name="media_file">
+              <interleave>
+                <ref name="SelfLink"/>
+                <element name="type">
+                  <data type="string">
+                    <param name="pattern">[a-z0-9\.\-]+/[a-z0-9\.\-]+</param>
+                  </data>
+                </element>
+                <optional>
+                  <element name="width">
+                    <data type="int"/>
+                  </element>
+                </optional>
+                <optional>
+                  <element name="height">
+                    <data type="int"/>
+                  </element>
+                </optional>
+                <optional>
+                  <element name="refresh_interval">
+                    <data type="int"/>
+                  </element>
+                </optional>
+                <zeroOrMore>
+                  <element name="title">
+                    <ref name="FreeTextType"/>
+                  </element>
+                </zeroOrMore>
+              </interleave>
+            </element>
           </oneOrMore>
         </element>
         <optional>
