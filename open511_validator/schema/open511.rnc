@@ -5,7 +5,7 @@ start =
 	element open511 {
 		attribute xml:base { xsd:anyURI }?,
 		XMLLang?,
-		attribute version { "v0" },
+		attribute version { "v0" | "v1" },
 		(
 			(
 			# The discovery page
@@ -173,8 +173,18 @@ Camera =
 		(element id { Open511IDType }
 		& Link+
 		& element name { FreeTextType }+
+		& element description { FreeTextType }*
 		& element geography { GMLPoint }
-		& element media_files { VerboseRelatedLink+ }
+		& element media_files { 
+			element media_file {
+				SelfLink
+				& element type { xsd:string { pattern="[a-z0-9\.\-]+/[a-z0-9\.\-]+" } }
+				& element width { xsd:int }?
+				& element height { xsd:int }?
+				& element refresh_interval { xsd:int }?
+				& element title { FreeTextType }*
+			}+
+		}
 		& element areas { Area+ }?
 		& element roads {
 			element road {
