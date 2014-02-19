@@ -44,7 +44,7 @@ def validator():
             try:
                 json_doc = xml_to_json(xml_doc)
             except:
-                pass
+                json_doc = 'Error generating JSON'
         else:
             raise NotImplementedError
 
