@@ -6,10 +6,6 @@
 	<ns prefix='gml' uri='http://www.opengis.net/gml'/> 
 
 	<pattern>
-		<rule context="open511">
-			<assert test="link[@rel='self']">Every document must have a self link</assert>
-			<assert test="(services) or (link[@rel='up'])">Every non-root document must have an up link</assert>
-		</rule>
 		<rule context="open511/link">
 			<assert test="@rel = 'self' or @rel = 'up'">Only the 'self' and 'up' links can appear inside open511</assert>
 		</rule>

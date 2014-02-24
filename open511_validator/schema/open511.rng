@@ -29,7 +29,9 @@
               <ref name="ServiceDefinition"/>
             </oneOrMore>
           </element>
-          <ref name="SelfLink"/>
+          <optional>
+            <ref name="SelfLink"/>
+          </optional>
           <zeroOrMore>
             <ref name="ForeignElement"/>
           </zeroOrMore>
@@ -81,9 +83,9 @@
           <optional>
             <ref name="Pagination"/>
           </optional>
-          <oneOrMore>
+          <zeroOrMore>
             <ref name="Link"/>
-          </oneOrMore>
+          </zeroOrMore>
           <zeroOrMore>
             <ref name="ForeignElement"/>
           </zeroOrMore>
