@@ -62,6 +62,21 @@
                 <ref name="Camera"/>
               </zeroOrMore>
             </element>
+            <element name="roads">
+              <zeroOrMore>
+                <ref name="Road"/>
+              </zeroOrMore>
+            </element>
+            <element name="traffic_segments">
+              <zeroOrMore>
+                <ref name="TrafficSegment"/>
+              </zeroOrMore>
+            </element>
+            <element name="historical_traffic_conditions">
+              <zeroOrMore>
+                <ref name="HistoricalTrafficCondition"/>
+              </zeroOrMore>
+            </element>
           </choice>
           <optional>
             <ref name="Pagination"/>
@@ -122,6 +137,14 @@
           <!-- FIXME type -->
           <element name="timezone">
             <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="distance_unit">
+            <choice>
+              <value>KILOMETRES</value>
+              <value>MILES </value>
+            </choice>
           </element>
         </optional>
         <optional>
@@ -281,7 +304,7 @@
         <optional>
           <element name="roads">
             <oneOrMore>
-              <ref name="Road"/>
+              <ref name="EventRoad"/>
             </oneOrMore>
           </element>
         </optional>
@@ -308,7 +331,106 @@
       </interleave>
     </element>
   </define>
+  <define name="Schedule">
+    <element name="schedule">
+      <choice>
+        <interleave>
+          <element name="start_date">
+            <data type="date"/>
+          </element>
+          <optional>
+            <element name="end_date">
+              <data type="date"/>
+            </element>
+          </optional>
+          <optional>
+            <element name="days">
+              <oneOrMore>
+                <element name="day">
+                  <data type="int">
+                    <param name="minInclusive">1</param>
+                    <param name="maxInclusive">7</param>
+                  </data>
+                </element>
+              </oneOrMore>
+            </element>
+          </optional>
+          <optional>
+            <interleave>
+              <element name="start_time">
+                <ref name="NaiveTimeType"/>
+              </element>
+              <element name="end_time">
+                <ref name="NaiveTimeType"/>
+              </element>
+            </interleave>
+          </optional>
+          <zeroOrMore>
+            <ref name="ForeignElement"/>
+          </zeroOrMore>
+        </interleave>
+        <ref name="SpecificDates"/>
+      </choice>
+    </element>
+  </define>
+  <define name="SpecificDates">
+    <element name="specific_dates">
+      <oneOrMore>
+        <element name="specific_date">
+          <data type="string">
+            <param name="pattern">[12][0-9]{3}-[01][0-9]-[0-3][0-9]( ([01][0-9]|2[0123]):[0-5][0-9]-([01][0-9]|2[0123]):[0-5][0-9])*</param>
+          </data>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="Area">
+    <element name="area">
+      <optional>
+        <ref name="XMLLang"/>
+      </optional>
+      <interleave>
+        <element name="id">
+          <ref name="Open511IDType"/>
+        </element>
+        <oneOrMore>
+          <element name="name">
+            <ref name="FreeTextType"/>
+          </element>
+        </oneOrMore>
+        <optional>
+          <ref name="SelfLink"/>
+        </optional>
+        <zeroOrMore>
+          <ref name="ForeignElement"/>
+        </zeroOrMore>
+      </interleave>
+    </element>
+  </define>
   <define name="Road">
+    <element name="road">
+      <optional>
+        <ref name="XMLLang"/>
+      </optional>
+      <interleave>
+        <element name="id">
+          <ref name="Open511IDType"/>
+        </element>
+        <oneOrMore>
+          <ref name="Link"/>
+        </oneOrMore>
+        <oneOrMore>
+          <element name="name">
+            <ref name="FreeTextType"/>
+          </element>
+        </oneOrMore>
+        <zeroOrMore>
+          <ref name="ForeignElement"/>
+        </zeroOrMore>
+      </interleave>
+    </element>
+  </define>
+  <define name="EventRoad">
     <element name="road">
       <interleave>
         <oneOrMore>
@@ -316,6 +438,9 @@
             <ref name="FreeTextType"/>
           </element>
         </oneOrMore>
+        <optional>
+          <ref name="SelfLink"/>
+        </optional>
         <zeroOrMore>
           <element name="from">
             <ref name="FreeTextType"/>
@@ -395,80 +520,28 @@
       </interleave>
     </element>
   </define>
-  <define name="Schedule">
-    <element name="schedule">
-      <choice>
-        <interleave>
-          <element name="start_date">
-            <data type="date"/>
-          </element>
-          <optional>
-            <element name="end_date">
-              <data type="date"/>
-            </element>
-          </optional>
-          <optional>
-            <element name="days">
-              <oneOrMore>
-                <element name="day">
-                  <data type="int">
-                    <param name="minInclusive">1</param>
-                    <param name="maxInclusive">7</param>
-                  </data>
-                </element>
-              </oneOrMore>
-            </element>
-          </optional>
-          <optional>
-            <interleave>
-              <element name="start_time">
-                <data type="string">
-                  <param name="pattern">([01][0-9]|2[0123]):[0-5][0-9]</param>
-                </data>
-              </element>
-              <element name="end_time">
-                <data type="string">
-                  <param name="pattern">([01][0-9]|2[0123]):[0-5][0-9]</param>
-                </data>
-              </element>
-            </interleave>
-          </optional>
-          <zeroOrMore>
-            <ref name="ForeignElement"/>
-          </zeroOrMore>
-        </interleave>
-        <ref name="SpecificDates"/>
-      </choice>
-    </element>
-  </define>
-  <define name="SpecificDates">
-    <element name="specific_dates">
-      <oneOrMore>
-        <element name="specific_date">
-          <data type="string">
-            <param name="pattern">[12][0-9]{3}-[01][0-9]-[0-3][0-9]( ([01][0-9]|2[0123]):[0-5][0-9]-([01][0-9]|2[0123]):[0-5][0-9])*</param>
-          </data>
-        </element>
-      </oneOrMore>
-    </element>
-  </define>
-  <define name="Area">
-    <element name="area">
-      <optional>
-        <ref name="XMLLang"/>
-      </optional>
+  <define name="TrafficSegmentRoad">
+    <element name="road">
       <interleave>
-        <element name="id">
-          <ref name="Open511IDType"/>
-        </element>
         <oneOrMore>
           <element name="name">
             <ref name="FreeTextType"/>
           </element>
         </oneOrMore>
-        <optional>
-          <ref name="SelfLink"/>
-        </optional>
+        <ref name="SelfLink"/>
+        <element name="direction">
+          <ref name="SpecificRoadDirectionsType"/>
+        </element>
+        <zeroOrMore>
+          <element name="from">
+            <ref name="FreeTextType"/>
+          </element>
+        </zeroOrMore>
+        <zeroOrMore>
+          <element name="to">
+            <ref name="FreeTextType"/>
+          </element>
+        </zeroOrMore>
         <zeroOrMore>
           <ref name="ForeignElement"/>
         </zeroOrMore>
@@ -586,6 +659,104 @@
         <zeroOrMore>
           <ref name="ForeignElement"/>
         </zeroOrMore>
+      </interleave>
+    </element>
+  </define>
+  <define name="TrafficSegment">
+    <element name="traffic_segment">
+      <optional>
+        <ref name="XMLLang"/>
+      </optional>
+      <interleave>
+        <element name="id">
+          <ref name="Open511IDType"/>
+        </element>
+        <oneOrMore>
+          <ref name="Link"/>
+        </oneOrMore>
+        <element name="updated">
+          <ref name="TimestampType"/>
+        </element>
+        <zeroOrMore>
+          <element name="name">
+            <ref name="FreeTextType"/>
+          </element>
+        </zeroOrMore>
+        <element name="roads">
+          <oneOrMore>
+            <ref name="TrafficSegmentRoad"/>
+          </oneOrMore>
+        </element>
+        <element name="geography">
+          <choice>
+            <ref name="GMLPoint"/>
+            <ref name="GMLLineString"/>
+          </choice>
+        </element>
+        <element name="current_speed">
+          <data type="integer"/>
+        </element>
+        <optional>
+          <element name="current_travel_time">
+            <data type="integer"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="historical_speed">
+            <data type="integer"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="historical_travel_time">
+            <data type="integer"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="areas">
+            <oneOrMore>
+              <ref name="Area"/>
+            </oneOrMore>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+  <define name="HistoricalTrafficCondition">
+    <element name="historical_traffic_condition">
+      <optional>
+        <ref name="XMLLang"/>
+      </optional>
+      <interleave>
+        <element name="link">
+          <attribute name="rel">
+            <value>traffic_segment</value>
+          </attribute>
+          <attribute name="href">
+            <data type="anyURI"/>
+          </attribute>
+        </element>
+        <element name="day">
+          <choice>
+            <value>1</value>
+            <value>2</value>
+            <value>3</value>
+            <value>4</value>
+            <value>5</value>
+            <value>6</value>
+            <value>7</value>
+          </choice>
+        </element>
+        <element name="time">
+          <ref name="NaiveTimeType"/>
+        </element>
+        <element name="historical_speed">
+          <data type="integer"/>
+        </element>
+        <optional>
+          <element name="historical_travel_time">
+            <data type="integer"/>
+          </element>
+        </optional>
       </interleave>
     </element>
   </define>
@@ -806,6 +977,11 @@
       <param name="pattern">.+T.+(Z|[+\-][01]\d:?\d?\d?)</param>
     </data>
   </define>
+  <define name="NaiveTimeType">
+    <data type="string">
+      <param name="pattern">([01][0-9]|2[0123]):[0-5][0-9]</param>
+    </data>
+  </define>
   <define name="EmailType">
     <data type="string">
       <param name="pattern">[a-zA-Z0-9\._%+\-]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,4}</param>
@@ -815,6 +991,18 @@
     <attribute name="xml:lang">
       <data type="language"/>
     </attribute>
+  </define>
+  <define name="SpecificRoadDirectionsType">
+    <choice>
+      <value>N</value>
+      <value>E</value>
+      <value>W</value>
+      <value>S</value>
+      <value>NW</value>
+      <value>SW</value>
+      <value>NE</value>
+      <value>SE</value>
+    </choice>
   </define>
   <define name="RoadDirectionsType">
     <choice>
