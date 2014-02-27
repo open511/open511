@@ -151,10 +151,8 @@ def json_struct_to_xml(json_obj, root, custom_namespace=None):
             root.append(geojson_to_gml(json_obj))
         else:
             for key, val in json_obj.items():
-                if key == 'url':
-                    el = json_link_to_xml(val, 'self')
-                elif key.endswith('_url'):
-                    el = json_link_to_xml(val, key.replace('_url', ''))
+                if key == 'url' or key.endswith('_url'):
+                    el = json_link_to_xml(val, json_link_key_to_xml_rel(key))
                 else:
                     el = json_struct_to_xml(val, key, custom_namespace=custom_namespace)
                 if el is not None:
@@ -174,6 +172,14 @@ def json_struct_to_xml(json_obj, root, custom_namespace=None):
     else:
         raise NotImplementedError
     return root
+
+def json_link_key_to_xml_rel(key):
+    if key == 'url':
+        return 'self'
+    elif key.endswith('_url'):
+        return key[:-4]
+    return key
+
 
 def json_link_to_xml(val, rel='related'):
     tag = etree.Element('link')
