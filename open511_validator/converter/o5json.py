@@ -1,4 +1,4 @@
-from open511_validator.converter.xml import NS_GML, NS_PROTECTED, NSMAP
+from open511_validator.converter.o5xml import NS_GML, NS_PROTECTED, NSMAP
 
 def _maybe_intify(t):
     return int(t) if hasattr(t, 'isdigit') and t.isdigit() else t

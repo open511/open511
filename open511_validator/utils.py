@@ -13,7 +13,6 @@ def deserialize(s):
             raise Exception("Doesn't look like either JSON or XML")
 
 def serialize(obj):
-    if isinstance(obj, (dict, basestring)):
-        return json.dumps(obj, indent=4)
-    else:
+    if getattr(obj, 'tag', None) == 'open511':
         return etree.tostring(obj, pretty_print=True)
+    return json.dumps(obj, indent=4)

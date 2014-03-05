@@ -1,19 +1,27 @@
 from collections import namedtuple
+import json
 
-from open511_validator.converter.xml import (json_struct_to_xml,
+from lxml import etree
+
+from open511_validator.converter.o5xml import (json_struct_to_xml,
     json_doc_to_xml, geojson_to_gml, json_link_key_to_xml_rel)
-from open511_validator.converter.json import pluralize, xml_to_json
+from open511_validator.converter.o5json import pluralize, xml_to_json
+from open511_validator.converter.atom import convert_to_atom
 
-ConversionFormat = namedtuple('ConversionFormat', 'name full_name input_format func')
+ConversionFormat = namedtuple('ConversionFormat', 'name full_name input_format func content_type serializer')
 
-FORMATS = [
-    ConversionFormat('xml', 'XML', 'xml', lambda x: x),
-    ConversionFormat('json', 'JSON', 'json', lambda j: j)
+noop = lambda x: x
+_serialize_xml = lambda x: etree.tostring(x, pretty_print=True)
+
+FORMATS_LIST = [
+    ConversionFormat('xml', 'XML', 'xml', noop, 'application/xml', _serialize_xml),
+    ConversionFormat('json', 'JSON', 'json', noop, 'application/json', lambda j: json.dumps(j, indent=4)),
+    ConversionFormat('atom', 'Atom (GeoRSS, MASAS)', 'xml', convert_to_atom, 'application/atom+xml', _serialize_xml)
 ]
 
-_formats_dict = dict((cf.name, cf) for cf in FORMATS)
+FORMATS = dict((cf.name, cf) for cf in FORMATS_LIST)
 
-def open511_convert(input_doc, output_format):
+def open511_convert(input_doc, output_format, serialize=True):
     """
     Convert an Open511 document between formats.
     input_doc - either an lxml open511 Element or a deserialized JSON dict
@@ -28,7 +36,7 @@ def open511_convert(input_doc, output_format):
         raise ValueError("Unrecognized input document in open511_convert")
 
     try:
-        output_format_info = _formats_dict[output_format]
+        output_format_info = FORMATS[output_format]
     except KeyError:
         raise ValueError("Unrecognized output format %s" % output_format)
 
@@ -38,4 +46,7 @@ def open511_convert(input_doc, output_format):
         elif output_format_info.input_format == 'json':
             input_doc = xml_to_json(input_doc)
 
-    return output_format_info.func(input_doc)
+    result = output_format_info.func(input_doc)
+    if serialize:
+        result = output_format_info.serializer(result)
+    return result

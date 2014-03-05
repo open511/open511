@@ -66,26 +66,34 @@
 				<p></p>
 				<div class="tab-content">
 					<div class="tab-pane active" id="by_url">
-						<form role="form" method="POST">
+						<form role="form" method="GET" action="/">
 							<input type="text" id="url" name="url" placeholder="URL" class="form-control">
-							<div style="text-align: center; margin-top: 10px"><button type="submit" class="btn btn-primary btn-lg">Validate</button></div>
 						</form>
 					</div>
 					<div class="tab-pane" id="by_paste">
-						<form role="form" method="POST">
+						<form role="form" method="POST" action="/">
 							<textarea class="form-control" name="doc_content" style="height: 300px"></textarea>
-							<div style="text-align: center; margin-top: 10px"><button type="submit" class="btn btn-primary btn-lg">Validate</button></div>
 						</form>
 					</div>
 					<div class="tab-pane" id="by_upload">
-						<form role="form" method="POST" enctype="multipart/form-data">
+						<form role="form" method="POST" action="/" enctype="multipart/form-data">
 							<input type="file" class="form-control" name="upload">
-							<div style="text-align: center; margin-top: 10px"><button type="submit" class="btn btn-primary btn-lg">Validate</button></div>
 						</form>
 					</div>
 				</div>
 			</div>
 		</div>
+		<div class="row" style="margin-bottom: 15px">
+			<div class="col-md-8" style="text-align: center"><button type="button" class="validate btn btn-primary btn-lg">Validate</button> &nbsp; &nbsp; <div class="btn-group">
+  <button type="button" class="btn btn-info btn-lg dropdown-toggle convert" data-toggle="dropdown">
+    Convert <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu convert" role="menu">
+  	{% for format in conversion_formats %}<li><a href="#" data-format-type="{{ format.name }}">{{ format.full_name }}</a></li>{% endfor %}
+  </ul>
+</div></div>
+		</div>
+
 
 		{% if fetch_error %}
 			<div class="well"><h2 style="color: red">Couldn't fetch the document.</h2>
@@ -139,7 +147,23 @@
 	</div>
 
 	<script src="//cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"></script>
-	<script>$(prettyPrint);</script>
+	<script>
+		$(prettyPrint);
+		$(function() {
+			$('button.validate').click(function(e) {
+				e.preventDefault();
+				$('.tab-pane.active form').submit();
+			});
+			$('ul.convert').on('click', 'li a', function(e) {
+				e.preventDefault();
+				var $form = $('.tab-pane.active form');
+				var format = $(this).attr('data-format-type');
+				$form.append($('<input type="hidden" name="format" />').val(format));
+				$form.attr('action', '/convert');
+				$form.submit();
+			});
+		});
+	</script>
 
 </body>
 </html>
