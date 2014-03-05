@@ -3,7 +3,7 @@ import sys
 
 
 from open511_validator import validate, Open511ValidationError
-from .converter import xml_to_json, json_doc_to_xml
+from .converter import open511_convert, json_doc_to_xml
 from .utils import deserialize, serialize
 
 def validate_cmdline():
@@ -32,9 +32,7 @@ def _load():
 
 def convert_cmdline():
     obj, obj_type = _load()
-    if obj_type == 'xml':
-        result = xml_to_json(obj)
-    elif obj_type == 'json':
-        result = json_doc_to_xml(obj)
+    output_format = 'xml' if obj_type == 'json' else 'json'
+    result = open511_convert(obj, output_format)
     sys.stdout.write(serialize(result))
     sys.stdout.write("\n")
