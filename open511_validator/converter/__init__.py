@@ -7,6 +7,7 @@ from open511_validator.converter.o5xml import (json_struct_to_xml,
     json_doc_to_xml, geojson_to_gml, json_link_key_to_xml_rel)
 from open511_validator.converter.o5json import pluralize, xml_to_json
 from open511_validator.converter.atom import convert_to_atom
+from open511_validator.converter.kml import convert_to_kml
 
 ConversionFormat = namedtuple('ConversionFormat', 'name full_name input_format func content_type serializer')
 
@@ -16,7 +17,8 @@ _serialize_xml = lambda x: etree.tostring(x, pretty_print=True)
 FORMATS_LIST = [
     ConversionFormat('xml', 'XML', 'xml', noop, 'application/xml', _serialize_xml),
     ConversionFormat('json', 'JSON', 'json', noop, 'application/json', lambda j: json.dumps(j, indent=4)),
-    ConversionFormat('atom', 'Atom (GeoRSS, MASAS)', 'xml', convert_to_atom, 'application/atom+xml', _serialize_xml)
+    ConversionFormat('atom', 'Atom (GeoRSS, MASAS)', 'xml', convert_to_atom, 'application/atom+xml', _serialize_xml),
+    ConversionFormat('kml', 'KML', 'json', convert_to_kml, 'application/vnd.google-earth.kml+xml', _serialize_xml),
 ]
 
 FORMATS = dict((cf.name, cf) for cf in FORMATS_LIST)
