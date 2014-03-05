@@ -1,4 +1,5 @@
 import datetime
+from urlparse import urljoin
 
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -31,9 +32,11 @@ def convert_to_atom(input, feed_url="http://example.org/open511-feed", feed_titl
         A('updated', datetime.datetime.utcnow().isoformat() + 'Z')
     )
 
+    base_url = input.get('{http://www.w3.org/XML/1998/namespace}base', feed_url)
+
     for event in input.xpath('events/event'):
         entry = A('entry',
-            A('id', event.findtext('id')),
+            A('id', urljoin(base_url, event.xpath('link[@rel="self"]/@href')[0])),
             A('category', label='Status', scheme='masas:category:status', 
                 term='Actual' if event.findtext('status') == 'ACTIVE' else 'Draft'),
             A('category', label='Severity', scheme='masas:category:severity',
