@@ -1,1 +1,1 @@
-web: gunicorn -w 4 -b 0.0.0.0:$PORT -k gevent open511_validator.web:app
+web: gunicorn -w 4 -b 0.0.0.0:$PORT -k gevent open511.webtools:app

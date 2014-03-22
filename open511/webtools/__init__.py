@@ -3,9 +3,9 @@ import functools
 from flask import Flask, render_template, request, Response, make_response
 import requests
 
-from converter import json_doc_to_xml, xml_to_json, FORMATS, FORMATS_LIST, open511_convert
-from validator import validate, Open511ValidationError
-from utils import deserialize, serialize
+from open511.converter import json_doc_to_xml, xml_to_json, FORMATS, FORMATS_LIST, open511_convert
+from open511.validator import validate, Open511ValidationError
+from open511.utils import deserialize, serialize
 
 app = Flask(__name__)
  

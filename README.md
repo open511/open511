@@ -1,4 +1,4 @@
-A simple validator for the [Open511 API](http://www.open511.org/) format.
+Some utilities for the [Open511 API](http://www.open511.org/) format. Includes a validator, a tool to convert between Open511 serializations, a Web interface for validation and conversion, and some utility/parsing code.
 
 ## Installation
 
@@ -16,4 +16,4 @@ Clone this repository, then run `python setup.py install`
 
 # Web interface
 
-A Web interface, available at http://validator.open511.org/, is in open511_validator/web.py. Install the dependencies (listed in requirements.txt, or run `easy_install Flask requests`), then run `python web.py` to start up a local server.
+A Web interface, available at http://validator.open511.org/, is in open511/webtools/__init__.py. Install the dependencies (listed in requirements.txt, or run `easy_install Flask requests`), then run `python open511/webtools/__init__.py` to start up a local server.

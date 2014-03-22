@@ -17,7 +17,7 @@ def convert_to_kml(input):
         data = {
             'Severity': event.get('severity').title(),
             'Status': event.get('status').title(),
-            'Event type': event.get('event_type').title()
+            'Type': event.get('event_type').title()
         }
         if 'detour' in event:
             data['Detour'] = event['detour']

@@ -1,4 +1,6 @@
 import json
+import re
+import sys
 
 from lxml import etree
 
@@ -16,3 +18,15 @@ def serialize(obj):
     if getattr(obj, 'tag', None) == 'open511':
         return etree.tostring(obj, pretty_print=True)
     return json.dumps(obj, indent=4)
+
+def load_path(source):
+    if source == '-':
+        content = sys.stdin.read()
+    elif re.match(r'https?://', source):
+            import urllib2
+            content = urllib2.urlopen(source).read()
+    else:
+        with open(source) as f:
+            content = f.read()
+
+    return deserialize(content)

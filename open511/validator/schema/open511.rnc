@@ -3,7 +3,7 @@ namespace local = ""
 
 start =
 	element open511 {
-		attribute xml:base { xsd:anyURI }?,
+		attribute xml:base { AbsoluteURLType }?,
 		XMLLang?,
 		attribute version { "v0" | "v1" },
 		(
@@ -347,6 +347,7 @@ TimestampType = xsd:dateTime {pattern = ".+T.+(Z|[+\-][01]\d:?\d?\d?)"}
 NaiveTimeType = xsd:string {pattern="([01][0-9]|2[0123]):[0-5][0-9]"}
 EmailType = xsd:string {pattern = "[a-zA-Z0-9\._%+\-]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,4}"}
 XMLLang = attribute xml:lang { xsd:language }
+AbsoluteURLType = xsd:anyURI {pattern="https?:/.+"}
 SpecificRoadDirectionsType = "N" | "E" | "W" | "S" | "NW" | "SW" | "NE" | "SE"
 RoadDirectionsType = "N" | "E" | "W" | "S" | "NW" | "SW" | "NE" | "SE" | "NONE" | "BOTH"
 FreeTextType =

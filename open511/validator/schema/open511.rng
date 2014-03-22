@@ -4,7 +4,7 @@
     <element name="open511">
       <optional>
         <attribute name="xml:base">
-          <data type="anyURI"/>
+          <ref name="AbsoluteURLType"/>
         </attribute>
       </optional>
       <optional>
@@ -993,6 +993,11 @@
     <attribute name="xml:lang">
       <data type="language"/>
     </attribute>
+  </define>
+  <define name="AbsoluteURLType">
+    <data type="anyURI">
+      <param name="pattern">https?:/.+</param>
+    </data>
   </define>
   <define name="SpecificRoadDirectionsType">
     <choice>

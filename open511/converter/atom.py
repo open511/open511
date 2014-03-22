@@ -1,4 +1,5 @@
 import datetime
+import re
 from urlparse import urljoin
 
 from lxml import etree
@@ -18,8 +19,12 @@ def _get_lang(tag):
 
 def _el_to_html(source_el):
     div = etree.Element('{%s}div' % NS_XHTML)
-    div.set(XML_LANG, _get_lang(source_el))
-    div.text = source_el.text
+    lang = _get_lang(source_el)
+    for graf in re.split(r'\n+', source_el.text):
+        p = etree.Element('{%s}div' % NS_XHTML)
+        p.set(XML_LANG, lang)
+        p.text = graf
+        div.append(p)
     return div
 
 def convert_to_atom(input, feed_url="http://example.org/open511-feed", feed_title="Open511 Example Feed"):
@@ -42,7 +47,9 @@ def convert_to_atom(input, feed_url="http://example.org/open511-feed", feed_titl
             A('category', label='Severity', scheme='masas:category:severity',
                 term=_cap_severity(event.findtext('severity'))),
             A('category', label='Category', scheme='masas:category:category',
-                term=_cap_category(event.findtext('event_type')))
+                term=_cap_category(event.findtext('event_type'))),
+            A('category', label='Open511 ID', scheme='open511:event:id',
+                term=event.findtext('id'))
         )
 
         if event.xpath('certainty'):
@@ -77,6 +84,7 @@ def _gml_to_georss(gml):
         name += 'line'
         coords = gml.findtext('{%s}posList' % NS_GML)
     else:
+        # TODO split multi geometries
         raise NotImplementedError("Cannot convert %s to GeoRSS" % gml_name)
     el = etree.Element(name)
     el.text = coords
