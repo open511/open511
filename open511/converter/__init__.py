@@ -3,7 +3,7 @@ import json
 
 from lxml import etree
 
-from open511.converter.o5xml import json_doc_to_xml
+from open511.converter.o5xml import json_doc_to_xml, geom_to_xml_element
 from open511.converter.o5json import xml_to_json
 from open511.converter.atom import convert_to_atom
 from open511.converter.kml import convert_to_kml
@@ -22,32 +22,40 @@ FORMATS_LIST = [
 
 FORMATS = dict((cf.name, cf) for cf in FORMATS_LIST)
 
-def open511_convert(input_doc, output_format, serialize=True):
+def ensure_format(doc, format):
+    """
+    Ensures that the provided document is an lxml Element or json dict.
+    """
+    assert format in ('xml', 'json')
+    if getattr(doc, 'tag', None) == 'open511':
+        if format == 'json':
+            return json_doc_to_xml(doc)
+    elif isinstance(doc, dict) and 'meta' in doc:
+        if format == 'xml':
+            return xml_to_json(doc)
+    else:
+        raise ValueError("Unrecognized input document")
+    return doc
+
+
+def open511_convert(input_doc, output_format, serialize=True, **kwargs):
     """
     Convert an Open511 document between formats.
     input_doc - either an lxml open511 Element or a deserialized JSON dict
     output_format - short string name of a valid output format, as listed above
     """
 
-    if getattr(input_doc, 'tag', None) == 'open511':
-        input_format = 'xml'
-    elif isinstance(input_doc, dict):
-        input_format = 'json'
-    else:
-        raise ValueError("Unrecognized input document in open511_convert")
-
     try:
         output_format_info = FORMATS[output_format]
     except KeyError:
         raise ValueError("Unrecognized output format %s" % output_format)
 
-    if input_format != output_format_info.input_format:
-        if output_format_info.input_format == 'xml':
-            input_doc = json_doc_to_xml(input_doc)
-        elif output_format_info.input_format == 'json':
-            input_doc = xml_to_json(input_doc)
+    input_doc = ensure_format(input_doc, output_format_info.input_format)
 
-    result = output_format_info.func(input_doc)
+    result = output_format_info.func(input_doc, **kwargs)
     if serialize:
         result = output_format_info.serializer(result)
     return result
+
+# Silence warnings
+geom_to_xml_element

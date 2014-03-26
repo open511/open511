@@ -4,8 +4,13 @@ from urlparse import urljoin
 
 from lxml import etree
 from lxml.builder import ElementMaker
+import pytz
 
-from open511.utils.serialization import NS_ATOM, NS_XHTML, NS_GEORSS, NS_GML, XML_LANG, XML_BASE
+from open511.utils.schedule import Schedule
+from open511.utils.serialization import NS_ATOM, NS_AGE, NS_XHTML, NS_GEORSS, NS_GML, XML_LANG, XML_BASE
+from open511.utils.timezone import now
+
+MASAS_EFFECTIVE = '{masas:experimental:time}effective'
 
 def _get_lang(tag):
     if tag is None:
@@ -23,7 +28,8 @@ def _el_to_html(source_el):
         div.append(p)
     return div
 
-def convert_to_atom(input, feed_url="http://example.org/open511-feed", feed_title="Open511 Example Feed"):
+def convert_to_atom(input, feed_url="http://example.org/open511-feed", feed_title="Open511 Example Feed",
+        include_expires=False, default_timezone_name='UTC'):
 
     A = ElementMaker(namespace=NS_ATOM, nsmap={None: NS_ATOM, 'html': NS_XHTML, 'georss': NS_GEORSS})
     feed = A('feed',
@@ -37,16 +43,40 @@ def convert_to_atom(input, feed_url="http://example.org/open511-feed", feed_titl
 
     for event in input.xpath('events/event'):
         entry = A('entry',
-            A('id', urljoin(base_url, event.xpath('link[@rel="self"]/@href')[0])),
+            A('id', urljoin(base_url, event.xpath('link[@rel="self"]/@href')[0]))
+        )
+        active = event.findtext('status') == 'ACTIVE'
+
+        if include_expires:
+            tz = event.findtext('timezone')
+            tz = pytz.timezone(tz) if tz else pytz.timezone(default_timezone_name)
+            schedule = Schedule(event.find('schedules'), tz)
+            timestamp = now()
+            next_period = schedule.next_period(timestamp)
+            if next_period is None:
+                active = False
+            else:
+                if next_period.start > timestamp:
+                    # Add effective tag for future events
+                    effective = etree.Element(MASAS_EFFECTIVE)
+                    effective.text = next_period.start.isoformat()
+                    entry.append(effective)
+                if next_period.end - timestamp < datetime.timedelta(days=14):
+                    expires = etree.Element('{%s}expires' % NS_AGE)
+                    expires.text = next_period.end.isoformat()
+                    entry.append(expires)
+
+
+        entry.extend([
             A('category', label='Status', scheme='masas:category:status', 
-                term='Actual' if event.findtext('status') == 'ACTIVE' else 'Draft'),
+                term='Actual' if active else 'Draft'),
             A('category', label='Severity', scheme='masas:category:severity',
                 term=_cap_severity(event.findtext('severity'))),
             A('category', label='Category', scheme='masas:category:category',
                 term=_cap_category(event.findtext('event_type'))),
             A('category', label='Open511 ID', scheme='open511:event:id',
                 term=event.findtext('id'))
-        )
+        ])
 
         if event.xpath('certainty'):
             entry.append(A('category', label='Certainty', scheme='masas:category:certainty',
