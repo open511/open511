@@ -5,11 +5,7 @@ from urlparse import urljoin
 from lxml import etree
 from lxml.builder import ElementMaker
 
-NS_ATOM = "http://www.w3.org/2005/Atom"
-NS_XHTML = 'http://www.w3.org/1999/xhtml'
-NS_GEORSS = 'http://www.georss.org/georss'
-NS_GML = 'http://www.opengis.net/gml'
-XML_LANG = '{http://www.w3.org/XML/1998/namespace}lang'
+from open511.utils.serialization import NS_ATOM, NS_XHTML, NS_GEORSS, NS_GML, XML_LANG, XML_BASE
 
 def _get_lang(tag):
     if tag is None:
@@ -37,7 +33,7 @@ def convert_to_atom(input, feed_url="http://example.org/open511-feed", feed_titl
         A('updated', datetime.datetime.utcnow().isoformat() + 'Z')
     )
 
-    base_url = input.get('{http://www.w3.org/XML/1998/namespace}base', feed_url)
+    base_url = input.get(XML_BASE, feed_url)
 
     for event in input.xpath('events/event'):
         entry = A('entry',

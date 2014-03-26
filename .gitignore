@@ -2,3 +2,4 @@
 .DS_Store
 trang.jar
 *.egg-info
+dist/

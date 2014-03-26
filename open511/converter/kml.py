@@ -1,6 +1,6 @@
 from lxml.builder import ElementMaker
 
-NS_KML = 'http://www.opengis.net/kml/2.2'
+from open511.utils.serialization import NS_KML
 
 K = ElementMaker(namespace=NS_KML, nsmap={None: NS_KML})
 

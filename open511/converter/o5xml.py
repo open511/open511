@@ -1,14 +1,10 @@
 from lxml import etree
 from lxml.builder import ElementMaker
 
-NS_PROTECTED = 'http://open511.org/namespaces/internal-field'
-NS_GML = 'http://www.opengis.net/gml'
-NS_GML_PREFIX = '{' + NS_GML + '}'
-XML_LANG = '{http://www.w3.org/XML/1998/namespace}lang'
+from open511.utils.serialization import (NS_GML, NS_PROTECTED,
+    get_base_open511_element)
 
-NSMAP = {
-    'gml': NS_GML
-}
+NS_GML_PREFIX = '{' + NS_GML + '}'
 
 G = ElementMaker(namespace=NS_GML)
 
@@ -24,12 +20,8 @@ def json_doc_to_xml(json_obj, lang='en', custom_namespace=None):
         raise Exception("This function requires a conforming Open511 JSON document with a 'meta' section.")
     json_obj = dict(json_obj)
     meta = json_obj.pop('meta')
-    elem = etree.Element("open511", nsmap={
-        'gml': NS_GML,
-    })
-    if lang:
-        elem.set(XML_LANG, lang)
-    elem.set('version', meta.pop('version'))
+    elem = get_base_open511_element(lang=lang, version=meta.pop('version'))
+
     pagination = json_obj.pop('pagination', None)
 
     json_struct_to_xml(json_obj, elem, custom_namespace=custom_namespace)

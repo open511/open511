@@ -9,3 +9,4 @@ requests>=2,<3
 lxml>=2.3
 gunicorn>=18,<19
 gevent
+pytz

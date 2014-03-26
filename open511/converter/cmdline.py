@@ -2,7 +2,7 @@ import argparse
 import sys
 
 from open511.converter import open511_convert, FORMATS_LIST
-from open511.utils import load_path
+from open511.utils.input import load_path
 
 def convert_cmdline():
     parser = argparse.ArgumentParser(description='Convert an Open511 document to another format.')

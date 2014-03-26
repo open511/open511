@@ -3,7 +3,7 @@ import sys
 
 from open511.validator import validate, Open511ValidationError
 from open511.converter import json_doc_to_xml
-from open511.utils import load_path
+from open511.utils.input import load_path
 
 def validate_cmdline():
     parser = argparse.ArgumentParser(description='Validate an Open511 document.')

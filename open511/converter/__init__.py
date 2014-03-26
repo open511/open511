@@ -3,9 +3,8 @@ import json
 
 from lxml import etree
 
-from open511.converter.o5xml import (json_struct_to_xml,
-    json_doc_to_xml, geojson_to_gml, json_link_key_to_xml_rel)
-from open511.converter.o5json import pluralize, xml_to_json
+from open511.converter.o5xml import json_doc_to_xml
+from open511.converter.o5json import xml_to_json
 from open511.converter.atom import convert_to_atom
 from open511.converter.kml import convert_to_kml
 
