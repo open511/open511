@@ -32,7 +32,6 @@ setup(
             'open511-convert = open511.converter.cmdline:convert_cmdline'
         ]
     },
-    namespace_packages = ['open511'],
     author = 'Open North',
     author_email = 'open511@opennorth.ca',
     license='MIT',
