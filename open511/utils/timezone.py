@@ -1,5 +1,13 @@
 # Taken from django.utils.timezone
 
+import datetime
+
+from pytz import utc
+
+def now():
+    return datetime.datetime.utcnow().replace(tzinfo=utc)
+
+
 def is_aware(value):
     """
     Determines if a given datetime.datetime is aware.

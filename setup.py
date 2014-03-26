@@ -18,12 +18,13 @@ if 'register' in sys.argv or 'upload' in sys.argv:
 
 setup(
     name = "open511",
-    version = "0.2",
+    version = "0.3",
     url='https://github.com/opennorth/open511',
     packages = find_packages(),
     include_package_data = True,
     install_requires = [
-        'lxml>=2.3'
+        'lxml>=2.3',
+        'pytz',
     ],
     entry_points = {
         'console_scripts': [

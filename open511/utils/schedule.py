@@ -1,9 +1,8 @@
 from collections import namedtuple
 import datetime
+import heapq
 
 from open511.utils import timezone
-
-from dateutil import rrule
 
 from open511.utils import memoize_method
 
@@ -22,8 +21,6 @@ def _time_text_to_period(t):
         text_to_time(start),
         text_to_time(end)
     )
-
-# FIXME write tests!
 
 class Schedule(object):
     """
@@ -58,6 +55,23 @@ class Schedule(object):
             ])
         return ex
 
+    def specific_dates_periods(self, range_start=datetime.date.min, range_end=datetime.date.max):
+        """Returns a list of Period tuples for each period represented in a <specific_dates>
+        schedule that falls between range_start and range_end."""
+        periods = []
+        for exception_date, exception_times in self.specific_dates.iteritems():
+            if exception_date >= range_start and exception_date <= range_end:
+                for exception_time in exception_times:
+                    periods.append(
+                        Period(
+                            self.timezone.localize(datetime.datetime.combine(exception_date, exception_time.start)),
+                            self.timezone.localize(datetime.datetime.combine(exception_date, exception_time.end))
+                        )
+                    )
+
+        periods.sort()
+        return periods        
+
     def to_timezone(self, dt):
         """Converts a datetime to the timezone of this Schedule."""
         if timezone.is_aware(dt):
@@ -91,7 +105,7 @@ class Schedule(object):
         query_start = self.to_timezone(query_start)
         query_end = self.to_timezone(query_end)
 
-        for range in self.to_periods(range_start=query_start.date(), range_end=query_end.date()):
+        for range in self.daily_periods(range_start=query_start.date(), range_end=query_end.date()):
             if (
                     ((range.start < query_start) and (range.end > query_end))
                     or (query_start <= range.start <= query_end)
@@ -99,46 +113,60 @@ class Schedule(object):
                 return True
         return False
 
-    def has_remaining_periods(self):
-        now = timezone.now().astimezone(self.timezone)
-        # This could probably be more efficient
-        periods = self.to_periods(range_start=now.date(), infinite_limit=2)
-        return any(p for p in periods if p.end > now)
+    def has_remaining_periods(self, after=None):
+        """Is this schedule ever in effect at or after the given time?
+        If no time is given, uses the current time."""
+        if after is None:
+            after = timezone.now()
+        after = self.to_timezone(after)
+        periods = self.daily_periods(range_start=after.date())
+        return any(p for p in periods if p.end > after)
 
-    def to_periods(self, infinite_limit=None,
-            range_start=datetime.date.min, range_end=datetime.date.max):
-        """A list of datetime tuples representing all the periods for which
-        this event is active.
+    def next_period(self, after=None):
+        """Returns the next Period this event is in effect, or None if the event
+        has no remaining periods."""
+        if after is None:
+            after = timezone.now()
+        after = self.to_timezone(after)
+        return next((p for p in self.periods(range_start=after.date()) if p.end > after), None)
 
-        If the event has no end_date, you must provide an infinite_limit argument.
+    def daily_periods(self, range_start=datetime.date.min, range_end=datetime.date.max):
+        """Returns an iterator of Period tuples for every day this event is in effect, between range_start
+        and range_end."""
+        specific = set(self.specific_dates.keys())
 
-        range_start and range_end are datetime.date objects limiting the periods returned
-        """
+        return heapq.merge(self.specific_dates_periods(range_start, range_end), *[
+            sched.daily_periods(range_start=range_start, range_end=range_end, exclude_dates=specific)
+            for sched in self.recurring_schedules
+        ])
 
-        tz = self.timezone
-        periods = []
+    def periods(self, range_start=datetime.date.min,
+            range_end=datetime.date.max, max_continuous_days=60):
+        """Returns an iterator of Period tuples for continuous stretches of time during
+        which this event is in effect, between range_start and range_end.
 
-        # Add specific_dates
-        exception_dates = set()
-        for exception_date, exception_times in self.specific_dates.iteritems():
-            exception_dates.add(exception_date)
-            if exception_date >= range_start and exception_date <= range_end:
-                for exception_time in exception_times:
-                    periods.append(
-                        Period(
-                            tz.localize(datetime.datetime.combine(exception_date, exception_time.start)),
-                            tz.localize(datetime.datetime.combine(exception_date, exception_time.end))
-                        )
-                    )
+        daily_periods returns one (or more) Period per day; if this event is continuously
+        in effect for several days, this method will return a single Period for that time.
+        However, Periods will be broken apart after max_continuous_days. This is because
+        the algorithm currently works day-by-day, and so the algorithm would become (nearly)
+        infinitely slow for events without an end date."""
 
-        # Add periods from recurring schedules
-        for sched in self.recurring_schedules:
-            for period in sched.to_periods(infinite_limit, range_start, range_end):
-                if period.start.date() not in exception_dates:
-                    periods.append(period)
+        current_period = None
 
-        periods.sort()
-        return periods
+        for period in self.daily_periods(range_start, range_end):
+            if current_period is None:
+                current_period = period
+            else:
+                if ( ((period.start < current_period.end)
+                        or (period.start - current_period.end) <= datetime.timedelta(minutes=1))
+                        and (current_period.end - current_period.start) < datetime.timedelta(days=max_continuous_days)):
+                    # Merge
+                    current_period = Period(current_period.start, period.end)
+                else:
+                    yield current_period
+                    current_period = period
+        if current_period:
+            yield current_period
 
 
 class RecurringScheduleComponent(object):
@@ -168,41 +196,25 @@ class RecurringScheduleComponent(object):
 
         return False
 
-    def to_periods(self, infinite_limit=None,
-            range_start=datetime.date.min, range_end=datetime.date.max):
-        """A list of datetime tuples representing all the specific periods
-        of this schedule.
-
-        If the schedule has no end_date, you must provide an infinite_limit argument.
-
-        range_start and range_end are datetime.date objects limiting the periods returned
-        """
-
-        kw = {
-            'dtstart': max(range_start, self.start_date),
-            'freq': rrule.DAILY,
-            'byweekday': list(self.weekdays),
-        }
-        if self.end_date:
-            kw['until'] = min(range_end, self.end_date)
-        else:
-            if range_end < datetime.date.max:
-                kw['until'] = range_end
-            elif infinite_limit:
-                kw['count'] = infinite_limit
-            else:
-                raise ValueError("Neither an end date nor a limit was provided.")
-
-        dates = list(rrule.rrule(**kw))
-        period = self.period
+    def daily_periods(self, range_start=datetime.date.min, range_end=datetime.date.max, exclude_dates=tuple()):
+        """Returns an iterator of Period tuples for every day this schedule is in effect, between range_start
+        and range_end."""
         tz = self.timezone
+        period = self.period
+        weekdays = self.weekdays
 
-        return [
-            Period(
-                tz.localize(datetime.datetime.combine(date, period.start)),
-                tz.localize(datetime.datetime.combine(date, period.end)) 
-            ) for date in dates
-        ]      
+        current_date = max(range_start, self.start_date)
+        end_date = range_end
+        if self.end_date:
+            end_date = min(end_date, self.end_date)
+
+        while current_date <= end_date:
+            if current_date.weekday() in weekdays and current_date not in exclude_dates:
+                yield Period(
+                    tz.localize(datetime.datetime.combine(current_date, period.start)),
+                    tz.localize(datetime.datetime.combine(current_date, period.end)) 
+                )
+            current_date += datetime.timedelta(days=1)
 
     @property
     @memoize_method
@@ -222,11 +234,13 @@ class RecurringScheduleComponent(object):
         return set(int(d) - 1 for d in self.root.xpath('days/day/text()'))
 
     @property
+    @memoize_method
     def start_date(self):
         """Start date of event recurrence, as datetime.date or None."""
         return text_to_date(self.root.findtext('start_date'))
 
     @property
+    @memoize_method
     def end_date(self):
         """End date of event recurrence, as datetime.date or None."""
         return text_to_date(self.root.findtext('end_date'))        
