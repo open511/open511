@@ -6,7 +6,7 @@ virtualenv:
 before_install:
     - "sudo apt-get install -qq python-lxml"
 install:
-    - "pip install nose"
+    - "pip install nose pytz flask requests"
 before_script:
     - python setup.py develop
 script:
