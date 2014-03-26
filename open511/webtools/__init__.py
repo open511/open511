@@ -5,7 +5,7 @@ import requests
 
 from open511.converter import json_doc_to_xml, xml_to_json, FORMATS, FORMATS_LIST, open511_convert
 from open511.validator import validate, Open511ValidationError
-from open511.utils import deserialize, serialize
+from open511.utils.serialization import deserialize, serialize
 
 app = Flask(__name__)
  
