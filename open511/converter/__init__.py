@@ -5,8 +5,8 @@ from lxml import etree
 
 from open511.converter.o5xml import (json_doc_to_xml, json_struct_to_xml,
     geom_to_xml_element, json_link_key_to_xml_rel)
-from open511.converter.o5json import xml_to_json
-from open511.converter.atom import convert_to_atom, pluralize
+from open511.converter.o5json import xml_to_json, pluralize
+from open511.converter.atom import convert_to_atom
 from open511.converter.kml import convert_to_kml
 
 ConversionFormat = namedtuple('ConversionFormat', 'name full_name input_format func content_type serializer')
