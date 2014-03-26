@@ -1,5 +1,7 @@
 Some utilities for the [Open511 API](http://www.open511.org/) format. Includes a validator, a tool to convert between Open511 serializations, a Web interface for validation and conversion, and some utility/parsing code.
 
+[![Build Status](https://travis-ci.org/opennorth/open511.png)](https://travis-ci.org/opennorth/open511)
+
 ## Installation
 
 Clone this repository, then run `python setup.py install`
