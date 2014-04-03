@@ -341,8 +341,8 @@ ForeignElement =
 	}
 
 
-JurisdictionIDType = xsd:string {pattern = "[a-z][a-z0-9\-]*\.[a-z0-9.\-]{2,}"}
-Open511IDType = xsd:string {pattern = "[a-z][a-z0-9\-]*\.[a-z0-9\.\-]{2,}/[a-zA-Z0-9_\.\-]+"}
+JurisdictionIDType = xsd:string {pattern = "[a-z0-9][a-z0-9\-]*\.[a-z0-9.\-]{2,}"}
+Open511IDType = xsd:string {pattern = "[a-z0-9][a-z0-9\-]*\.[a-z0-9\.\-]{2,}/[a-zA-Z0-9_\.\-]+"}
 TimestampType = xsd:dateTime {pattern = ".+T.+(Z|[+\-][01]\d:?\d?\d?)"}
 NaiveTimeType = xsd:string {pattern="([01][0-9]|2[0123]):[0-5][0-9]"}
 EmailType = xsd:string {pattern = "[a-zA-Z0-9\._%+\-]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,4}"}
