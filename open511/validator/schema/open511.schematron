@@ -7,7 +7,7 @@
 
 	<pattern>
 		<rule context="open511/link">
-			<assert test="@rel = 'self' or @rel = 'up'">Only the 'self' and 'up' links can appear inside open511</assert>
+			<assert test="@rel = 'self' or @rel = 'up' or @rel = 'top'">Only the 'self', 'up', and 'top' links can appear inside open511</assert>
 		</rule>
 		<rule context="//link[@rel='jurisdiction']">
 			<assert test="starts-with(@href, 'http')">Jurisdiction links must be absolute URLs</assert>
