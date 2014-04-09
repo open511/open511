@@ -53,3 +53,16 @@ class FutureScheduleTest(BaseScheduleTest):
         assert sc.next_period().start.date() == datetime.date(2050,1,1)
         assert not sc.includes(datetime.datetime.now())
 
+class SpecificDatesScheduleTest(BaseScheduleTest):
+    data = """<schedules><schedule><start_date>2010-01-01</start_date></schedule><schedule><specific_dates><specific_date>%s</specific_date></specific_dates></schedule></schedules>
+        """ % datetime.date.today()
+
+    def test_not_now(self):
+        sc = self.sched
+        assert sc.has_remaining_periods()
+        assert sc.next_period().start.date() == datetime.date.today() + datetime.timedelta(days=1)
+        assert not sc.includes(datetime.datetime.now())
+        assert sc.includes(datetime.datetime.now() + datetime.timedelta(days=1))
+        assert not sc.active_within_range(datetime.datetime.now(), datetime.datetime.now() + datetime.timedelta(seconds=1))
+        assert sc.active_within_range(datetime.datetime.now(), datetime.datetime.now() + datetime.timedelta(days=1))
+

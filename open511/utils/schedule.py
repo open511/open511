@@ -89,11 +89,13 @@ class Schedule(object):
         # Is the provided time an exception for this schedule?
         specific = self.specific_dates.get(query_date)
         if specific is not None:
-            if not query_time:
-                return True
+            if len(specific) == 0:
+                # Not in effect on this day
+                return False
             for period in specific:
                 if query_time >= period.start and query_time <= period.end:
                     return True
+            return False
 
         # It's not an exception. Is it within a recurring schedule?
         return any(sched.includes(query_date, query_time) for sched in self.recurring_schedules)
@@ -176,7 +178,7 @@ class RecurringScheduleComponent(object):
         self.root = root
         self.timezone = timezone
 
-    def includes(self, query_date, query_time):
+    def includes(self, query_date, query_time=None):
         """Does this schedule include the provided time?
         query_date and query_time are date and time objects, interpreted
         in this schedule's timezone"""
