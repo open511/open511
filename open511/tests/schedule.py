@@ -54,7 +54,7 @@ class FutureScheduleTest(BaseScheduleTest):
         assert not sc.includes(datetime.datetime.now())
 
 class SpecificDatesScheduleTest(BaseScheduleTest):
-    data = """<schedules><schedule><start_date>2010-01-01</start_date></schedule><schedule><specific_dates><specific_date>%s</specific_date></specific_dates></schedule></schedules>
+    data = """<schedules><schedule><start_date>2010-01-01</start_date></schedule><schedule><specific_dates><specific_date>2010-01-02 09:00-10:00 11:00-12:00</specific_date><specific_date>%s</specific_date></specific_dates></schedule></schedules>
         """ % datetime.date.today()
 
     def test_not_now(self):
@@ -65,4 +65,15 @@ class SpecificDatesScheduleTest(BaseScheduleTest):
         assert sc.includes(datetime.datetime.now() + datetime.timedelta(days=1))
         assert not sc.active_within_range(datetime.datetime.now(), datetime.datetime.now() + datetime.timedelta(seconds=1))
         assert sc.active_within_range(datetime.datetime.now(), datetime.datetime.now() + datetime.timedelta(days=1))
+
+        assert sc.includes(datetime.datetime(2010,1,2,9,30))
+        assert not sc.includes(datetime.datetime(2010,1,2,10,30))
+        assert not sc.active_within_range(datetime.datetime(2010,1,2,14,0), datetime.datetime(2010,1,2,15,0))
+        assert sc.active_within_range(datetime.datetime(2010,1,2,8,0), datetime.datetime(2010,1,2,9,30))
+        assert sc.active_within_range(datetime.datetime(2010,1,2,8,0), datetime.datetime(2010,1,2,12,30))
+        assert sc.active_within_range(datetime.datetime(2010,1,2,9,30), datetime.datetime(2010,1,2,12,0))
+        assert sc.active_within_range(datetime.datetime(2010,1,2,9,30), datetime.datetime(2010,1,2,9,40))
+        assert sc.next_period(datetime.datetime(2010,1,2,8,30)).end.time() == datetime.time(10,0)
+
+
 
