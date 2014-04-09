@@ -844,6 +844,7 @@
       <ref name="GMLMultiPoint"/>
       <ref name="GMLLineString"/>
       <ref name="GMLMultiLineString"/>
+      <ref name="GMLMultiCurve"/>
       <ref name="GMLPolygon"/>
       <ref name="GMLMultiPolygon"/>
     </choice>
@@ -900,6 +901,18 @@
       <ref name="srsName"/>
       <oneOrMore>
         <element name="gml:lineStringMember">
+          <element name="gml:LineString">
+            <ref name="GMLPosList"/>
+          </element>
+        </element>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="GMLMultiCurve">
+    <element name="gml:MultiCurve">
+      <ref name="srsName"/>
+      <oneOrMore>
+        <element name="gml:curveMember">
           <element name="gml:LineString">
             <ref name="GMLPosList"/>
           </element>

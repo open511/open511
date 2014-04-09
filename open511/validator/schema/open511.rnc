@@ -286,7 +286,7 @@ Pagination =
 	}
 
 
-AnyGML = (GMLPoint | GMLMultiPoint | GMLLineString | GMLMultiLineString | GMLPolygon | GMLMultiPolygon)
+AnyGML = (GMLPoint | GMLMultiPoint | GMLLineString | GMLMultiLineString | GMLMultiCurve | GMLPolygon | GMLMultiPolygon)
 srsName = attribute srsName { "urn:ogc:def:crs:EPSG::4326" }
 GMLPos = element gml:pos { list { xsd:double, xsd:double } }
 GMLPosList = element gml:posList{ list { (xsd:double, xsd:double)+ } }
@@ -307,6 +307,14 @@ GMLLineString = element gml:LineString {
 GMLMultiLineString = element gml:MultiLineString {
 	srsName,
 	element gml:lineStringMember {
+		element gml:LineString {
+			GMLPosList
+		}
+	}+
+}
+GMLMultiCurve = element gml:MultiCurve {
+	srsName,
+	element gml:curveMember {
 		element gml:LineString {
 			GMLPosList
 		}

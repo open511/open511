@@ -134,9 +134,13 @@ def _gmlv2_to_geojson(el):
                 [float(x) for x in pair.split(',')]
                 for pair in ring.text.split(' ')
             ])
-    elif tag in ('MultiPoint', 'MultiLineString', 'MultiPolygon'):
-        single_type = tag[5:]
-        member_tag = single_type[0].lower() + single_type[1:] + 'Member'
+    elif tag in ('MultiPoint', 'MultiLineString', 'MultiPolygon', 'MultiCurve'):
+        if tag == 'MultiCurve':
+            single_type = 'LineString'
+            member_tag = 'curveMember'
+        else:
+            single_type = tag[5:]
+            member_tag = single_type[0].lower() + single_type[1:] + 'Member'
         coordinates = [
             gml_to_geojson(member)['coordinates']
             for member in el.xpath('gml:%s/gml:%s' % (member_tag, single_type), namespaces=NSMAP)
