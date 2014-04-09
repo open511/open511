@@ -24,7 +24,7 @@ def convert_to_kml(input):
 
         if data:
             e.append(K('ExtendedData', *[
-                K('Data', K('value', value), name=key) for key, value in data.iteritems()
+                K('Data', K('value', value), name=key) for key, value in data.items()
             ]))
 
         placemarks.append(e)

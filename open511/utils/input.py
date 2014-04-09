@@ -1,13 +1,17 @@
 import re
 import sys
 
+try:
+    import urllib2
+except ImportError:
+    import urllib.request as urllib2
+
 from open511.utils.serialization import deserialize
 
 def load_path(source):
     if source == '-':
         content = sys.stdin.read()
     elif re.match(r'https?://', source):
-            import urllib2
             content = urllib2.urlopen(source).read()
     else:
         with open(source) as f:
@@ -16,7 +20,6 @@ def load_path(source):
     return deserialize(content)
 
 def get_jurisdiction_settings(jurisdiction_url):
-    import urllib2
     from lxml import etree
     req = urllib2.Request(jurisdiction_url)
     req.add_header('Accept', 'application/xml')

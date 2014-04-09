@@ -47,7 +47,7 @@ class Schedule(object):
         to the base recurrence pattern."""
         ex = {}
         for sd in self.root.xpath('schedule/specific_dates/specific_date'):
-            bits = unicode(sd.text).split(' ')
+            bits = str(sd.text).split(' ')
             date = text_to_date(bits.pop(0))
             ex.setdefault(date, []).extend([
                 _time_text_to_period(t)
@@ -59,7 +59,7 @@ class Schedule(object):
         """Returns a list of Period tuples for each period represented in a <specific_dates>
         schedule that falls between range_start and range_end."""
         periods = []
-        for exception_date, exception_times in self.specific_dates.iteritems():
+        for exception_date, exception_times in self.specific_dates.items():
             if exception_date >= range_start and exception_date <= range_end:
                 for exception_time in exception_times:
                     periods.append(

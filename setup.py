@@ -39,6 +39,7 @@ setup(
          'Development Status :: 4 - Beta',
          'Intended Audience :: Developers',
          'Programming Language :: Python :: 2.7',
+         'Programming Language :: Python :: 3.4',
          'License :: OSI Approved :: MIT License',
     ],
     description = 'Tools supporting the Open511 format, which aims to make road information open and shareable.',

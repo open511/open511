@@ -17,5 +17,8 @@ def convert_cmdline():
     else:
         output_format = 'xml' if obj_type == 'json' else 'json'
     result = open511_convert(obj, output_format, serialize=True)
-    sys.stdout.write(result)
+    stdout = sys.stdout
+    if hasattr(stdout, 'detach'):
+        stdout = stdout.detach()
+    stdout.write(result)
     sys.stdout.write("\n")

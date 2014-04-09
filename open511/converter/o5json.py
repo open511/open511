@@ -80,7 +80,7 @@ def xml_link_to_json(link, to_dict=False):
 def _reverse_gml_coords(s):
     coords = s.split(' ')
     gj = []
-    for i in xrange(0, len(coords), 2):
+    for i in range(0, len(coords), 2):
         gj.append((float(coords[i+1]), float(coords[i])))
     return gj
 

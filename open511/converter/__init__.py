@@ -16,7 +16,7 @@ _serialize_xml = lambda x: etree.tostring(x, pretty_print=True)
 
 FORMATS_LIST = [
     ConversionFormat('xml', 'XML', 'xml', noop, 'application/xml', _serialize_xml),
-    ConversionFormat('json', 'JSON', 'json', noop, 'application/json', lambda j: json.dumps(j, indent=4)),
+    ConversionFormat('json', 'JSON', 'json', noop, 'application/json', lambda j: json.dumps(j, indent=4).encode('utf8')),
     ConversionFormat('atom', 'Atom (GeoRSS, MASAS)', 'xml', convert_to_atom, 'application/atom+xml', _serialize_xml),
     ConversionFormat('kml', 'KML', 'json', convert_to_kml, 'application/vnd.google-earth.kml+xml', _serialize_xml),
 ]
@@ -30,10 +30,10 @@ def ensure_format(doc, format):
     assert format in ('xml', 'json')
     if getattr(doc, 'tag', None) == 'open511':
         if format == 'json':
-            return json_doc_to_xml(doc)
+            return xml_to_json(doc)
     elif isinstance(doc, dict) and 'meta' in doc:
         if format == 'xml':
-            return xml_to_json(doc)
+            return json_doc_to_xml(doc)
     else:
         raise ValueError("Unrecognized input document")
     return doc

@@ -1,6 +1,9 @@
 import datetime
 import re
-from urlparse import urljoin
+try:
+    from urlparse import urljoin
+except ImportError:
+    from urllib.parse import urljoin
 
 from lxml import etree
 from lxml.builder import ElementMaker
