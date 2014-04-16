@@ -9,31 +9,45 @@
 		<rule context="open511/link">
 			<assert test="@rel = 'self' or @rel = 'up' or @rel = 'top'">Only the 'self', 'up', and 'top' links can appear inside open511</assert>
 		</rule>
+	</pattern>
+	<pattern>
 		<rule context="//link[@rel='jurisdiction']">
 			<assert test="starts-with(@href, 'http')">Jurisdiction links must be absolute URLs</assert>
 		</rule>
+	</pattern>
+	<pattern>
 		<rule context="open511/services/service">
 			<assert test="link[@rel='service_type']">A service definition requires a service_type link</assert>
 			<assert test="link[@rel='self']">A service definition requires a self link</assert>
 			<assert test="count(link) = 2">A service definition may include only two links (service_type and self)</assert>
 		</rule>
+	</pattern>
+	<pattern>		
 		<rule context="jurisdiction|event">
 			<assert test="link[@rel='self']">A self link is required</assert>
 			<assert test="count(link[@rel='self']) = 1">An event must contain a single self link</assert>
 		</rule>
-		<rule context="open511/jurisdiction">
+	</pattern>
+	<pattern>		
+		<rule context="open511[not(services)]/jurisdictions/jurisdiction">
 			<assert test="link[@rel='geography']">Jurisdictions require a geography link</assert>
 			<assert test="link[@rel='license']">Jurisdictions require a license link</assert>
 			<assert test="count(link) = 3 or count(link) = 4">A jurisdiction must have three or four links</assert>
 		</rule>
-		<rule context="open511/jurisdiction/link">
+	</pattern>
+	<pattern>		
+		<rule context="jurisdiction/link">
 			<assert test="@rel = 'self' or @rel = 'geography' or @rel = 'license' or @rel = 'description'">Valid link types with jurisdiction are self, geography, license, and description</assert>
 		</rule>
+	</pattern>
+	<pattern>
 		<rule context="event">
 			<assert test="link[@rel='jurisdiction']">Events require a jurisdiction link</assert>
 			<assert test="count(link) = 2">Events must have a self and jurisdiction link, and no others</assert>
 			<assert test="count(specific_dates) &lt;= 1">Event schedules may include no more than one specific_dates element</assert>
 		</rule>
+	</pattern>
+	<pattern>
 		<rule context="event/roads/road">
 			<assert test="not(state) or (direction)">If state is set, direction must be too.</assert>
 			<assert test="not(lanes_open) or (state/text() = 'SOME_LANES_CLOSED')">If lanes_open is included, state must be SOME_LANES_CLOSED</assert>
@@ -41,6 +55,8 @@
 			<assert test="not(lanes_closed) or (state/text() = 'SOME_LANES_CLOSED')">If lanes_closed is included, state must be SOME_LANES_CLOSED</assert>
 			<assert test="not(lanes_closed) or (direction and not(direction/text() = 'BOTH'))">If lanes_closed is included, direction must be set, and to a value other than BOTH.</assert>
 		</rule>
+	</pattern>
+	<pattern>
 		<rule context="pagination">
 			<assert test="link[@rel = 'next'] or link[@rel = 'previous'] or not(link)">Pagination links must be next or previous</assert>
 			<assert test="count(link[@rel = 'next']) &lt; 2 and count(link[@rel = 'previous']) &lt; 2">No more than one next or previous link</assert>
