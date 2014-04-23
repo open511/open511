@@ -1,4 +1,6 @@
 import functools
+import logging
+import os
 
 from flask import Flask, render_template, request, Response, make_response
 import requests
@@ -8,6 +10,31 @@ from open511.validator import validate, Open511ValidationError
 from open511.utils.serialization import deserialize, serialize
 
 app = Flask(__name__)
+
+if os.environ.get('OPEN511_EMAIL_ERRORS'):
+    from logging.handlers import SMTPHandler
+    if os.environ.get('MANDRILL_USERNAME'):
+        # Automatically support Mandrill config
+        mailhost = 'smtp.mandrillapp.com'
+        mailport = '587'
+        username = os.environ.get('MANDRILL_USERNAME')
+        password = os.environ.get('MANDRILL_APIKEY')
+    else:
+        mailhost = os.environ.get('SMTP_SERVER')
+        mailport = os.environ.get('SMTP_SERVER_PORT', 25)
+        username = os.environ.get('SMTP_USERNAME')
+        password = os.environ.get('SMTP_PASSWORD')
+    mail_config = dict(
+        mailhost=(mailhost,mailport),
+        fromaddr=os.environ.get('OPEN511_EMAIL_ERRORS_FROM', 'server-error@validator.open511.org'),
+        toaddrs=[os.environ['OPEN511_EMAIL_ERRORS']],
+        subject='Open511 Validator server error'
+    )
+    if username and password:
+        mail_config['credentials'] = (username, password)
+    mail_handler = SMTPHandler(**mail_config)
+    mail_handler.setLevel(logging.ERROR)
+    app.logger.addHandler(mail_handler)
  
 def no_cache(f):
     def new_func(*args, **kwargs):
