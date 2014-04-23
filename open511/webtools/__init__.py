@@ -16,12 +16,12 @@ if os.environ.get('OPEN511_EMAIL_ERRORS'):
     if os.environ.get('MANDRILL_USERNAME'):
         # Automatically support Mandrill config
         mailhost = 'smtp.mandrillapp.com'
-        mailport = '587'
+        mailport = 587
         username = os.environ.get('MANDRILL_USERNAME')
         password = os.environ.get('MANDRILL_APIKEY')
     else:
         mailhost = os.environ.get('SMTP_SERVER')
-        mailport = os.environ.get('SMTP_SERVER_PORT', 25)
+        mailport = int(os.environ.get('SMTP_SERVER_PORT', 25))
         username = os.environ.get('SMTP_USERNAME')
         password = os.environ.get('SMTP_PASSWORD')
     mail_config = dict(
