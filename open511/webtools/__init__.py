@@ -35,6 +35,10 @@ if os.environ.get('OPEN511_EMAIL_ERRORS'):
     mail_handler = SMTPHandler(**mail_config)
     mail_handler.setLevel(logging.ERROR)
     app.logger.addHandler(mail_handler)
+
+if os.environ.get('SENTRY_DSN'):
+    from raven.contrib.flask import Sentry
+    sentry = Sentry(app, dsn=os.environ['SENTRY_DSN'])
  
 def no_cache(f):
     def new_func(*args, **kwargs):

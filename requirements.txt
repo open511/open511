@@ -10,3 +10,4 @@ lxml>=2.3
 gunicorn>=18,<19
 gevent
 pytz
+raven==4.2.1
