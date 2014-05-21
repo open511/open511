@@ -11,3 +11,4 @@ gunicorn>=18,<19
 gevent
 pytz
 raven==4.2.1
+blinker==1.3
