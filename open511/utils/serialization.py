@@ -51,6 +51,6 @@ def deserialize(s):
             raise Exception("Doesn't look like either JSON or XML")
 
 def serialize(obj):
-    if getattr(obj, 'tag', None) == 'open511':
+    if getattr(obj, 'tag', None):
         return etree.tostring(obj, pretty_print=True)
     return json.dumps(obj, indent=4)    
