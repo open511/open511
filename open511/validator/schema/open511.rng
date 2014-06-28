@@ -315,11 +315,7 @@
             <text/>
           </element>
         </optional>
-        <element name="schedules">
-          <oneOrMore>
-            <ref name="Schedule"/>
-          </oneOrMore>
-        </element>
+        <ref name="Schedule"/>
         <optional>
           <element name="attachments">
             <oneOrMore>
@@ -337,53 +333,90 @@
     <element name="schedule">
       <choice>
         <interleave>
-          <element name="start_date">
-            <data type="date"/>
+          <element name="recurring_schedules">
+            <oneOrMore>
+              <ref name="RecurringSchedule"/>
+            </oneOrMore>
           </element>
           <optional>
-            <element name="end_date">
-              <data type="date"/>
-            </element>
-          </optional>
-          <optional>
-            <element name="days">
+            <element name="exceptions">
               <oneOrMore>
-                <element name="day">
-                  <data type="int">
-                    <param name="minInclusive">1</param>
-                    <param name="maxInclusive">7</param>
+                <element name="exception">
+                  <data type="string">
+                    <param name="pattern">[12][0-9]{3}-[01][0-9]-[0-3][0-9]( ([01][0-9]|2[0123]):[0-5][0-9]-([01][0-9]|2[0123]):[0-5][0-9])*</param>
                   </data>
                 </element>
               </oneOrMore>
             </element>
           </optional>
-          <optional>
-            <interleave>
-              <element name="start_time">
-                <ref name="NaiveTimeType"/>
-              </element>
-              <element name="end_time">
-                <ref name="NaiveTimeType"/>
-              </element>
-            </interleave>
-          </optional>
-          <zeroOrMore>
-            <ref name="ForeignElement"/>
-          </zeroOrMore>
         </interleave>
-        <ref name="SpecificDates"/>
+        <element name="intervals">
+          <choice>
+            <group>
+              <oneOrMore>
+                <ref name="Interval"/>
+              </oneOrMore>
+              <optional>
+                <ref name="IntervalWithoutEnd"/>
+              </optional>
+            </group>
+            <ref name="IntervalWithoutEnd"/>
+          </choice>
+        </element>
       </choice>
     </element>
   </define>
-  <define name="SpecificDates">
-    <element name="specific_dates">
-      <oneOrMore>
-        <element name="specific_date">
-          <data type="string">
-            <param name="pattern">[12][0-9]{3}-[01][0-9]-[0-3][0-9]( ([01][0-9]|2[0123]):[0-5][0-9]-([01][0-9]|2[0123]):[0-5][0-9])*</param>
-          </data>
+  <define name="Interval">
+    <element name="interval">
+      <data type="string">
+        <param name="pattern">\d\d\d\d-\d\d-\d\dT([01][0-9]|2[0123]):[0-5][0-9]/\d\d\d\d-\d\d-\d\dT([01][0-9]|2[0123]):[0-5][0-9]</param>
+      </data>
+    </element>
+  </define>
+  <define name="IntervalWithoutEnd">
+    <element name="interval">
+      <data type="string">
+        <param name="pattern">\d\d\d\d-\d\d-\d\dT([01][0-9]|2[0123]):[0-5][0-9]/</param>
+      </data>
+    </element>
+  </define>
+  <define name="RecurringSchedule">
+    <element name="recurring_schedule">
+      <interleave>
+        <element name="start_date">
+          <data type="date"/>
         </element>
-      </oneOrMore>
+        <optional>
+          <element name="end_date">
+            <data type="date"/>
+          </element>
+        </optional>
+        <optional>
+          <element name="days">
+            <oneOrMore>
+              <element name="day">
+                <data type="int">
+                  <param name="minInclusive">1</param>
+                  <param name="maxInclusive">7</param>
+                </data>
+              </element>
+            </oneOrMore>
+          </element>
+        </optional>
+        <optional>
+          <interleave>
+            <element name="daily_start_time">
+              <ref name="NaiveTimeType"/>
+            </element>
+            <element name="daily_end_time">
+              <ref name="NaiveTimeType"/>
+            </element>
+          </interleave>
+        </optional>
+        <zeroOrMore>
+          <ref name="ForeignElement"/>
+        </zeroOrMore>
+      </interleave>
     </element>
   </define>
   <define name="Area">

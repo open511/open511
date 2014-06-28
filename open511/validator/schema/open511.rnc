@@ -97,18 +97,39 @@ RoadEvent =
 			EventRoad+
 		}?
 		& element timezone { text }?
-		& element schedules {
-			Schedule+
-		}
+		& Schedule
 		& element attachments {
 			VerboseRelatedLink+
 		}?
 		& ForeignElement*)
 	}
 
-Schedule =
-	element schedule {
-		(element start_date { xsd:date }
+Schedule = element schedule {(
+		element recurring_schedules {
+			RecurringSchedule+
+		}
+		& element exceptions {
+			element exception {xsd:string {pattern = "[12][0-9]{3}-[01][0-9]-[0-3][0-9]( ([01][0-9]|2[0123]):[0-5][0-9]-([01][0-9]|2[0123]):[0-5][0-9])*"}}+
+		}?
+	) | (
+		element intervals {
+			(Interval+,
+			IntervalWithoutEnd?)
+			| IntervalWithoutEnd
+		}
+	)}
+
+Interval = element interval {
+	xsd:string {pattern="\d\d\d\d-\d\d-\d\dT([01][0-9]|2[0123]):[0-5][0-9]/\d\d\d\d-\d\d-\d\dT([01][0-9]|2[0123]):[0-5][0-9]"}
+}
+
+IntervalWithoutEnd = element interval {
+	xsd:string {pattern="\d\d\d\d-\d\d-\d\dT([01][0-9]|2[0123]):[0-5][0-9]/"}
+} 
+
+RecurringSchedule =
+	element recurring_schedule {
+		element start_date { xsd:date }
 		& element end_date { xsd:date }?
 		& element days {
 			element day {
@@ -119,17 +140,10 @@ Schedule =
 			}+
 		}?
 		& (
-			element start_time { NaiveTimeType }
-			& element end_time { NaiveTimeType }
+			element daily_start_time { NaiveTimeType }
+			& element daily_end_time { NaiveTimeType }
 		)?
-		& ForeignElement*) | SpecificDates
-	}	
-
-SpecificDates =
-	element specific_dates {
-		element specific_date {
-			xsd:string {pattern = "[12][0-9]{3}-[01][0-9]-[0-3][0-9]( ([01][0-9]|2[0123]):[0-5][0-9]-([01][0-9]|2[0123]):[0-5][0-9])*"}
-		}+
+		& ForeignElement*
 	}
 
 Area =
