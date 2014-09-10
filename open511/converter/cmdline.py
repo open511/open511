@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from open511.converter import open511_convert, FORMATS_LIST
+from open511.converter import open511_convert, FORMATS_LIST, tmdd
 from open511.utils.input import load_path
 
 def convert_cmdline():
@@ -12,6 +12,9 @@ def convert_cmdline():
         help='Document to validate: path, URL, or - to read from stdin')
     arguments = parser.parse_args()
     obj, obj_type = load_path(arguments.source)
+    if obj_type == 'xml' and tmdd.is_tmdd(obj):
+        obj = tmdd.tmdd_to_json(obj)
+        obj_type = 'json'
     if arguments.format:
         output_format = arguments.format
     else:
