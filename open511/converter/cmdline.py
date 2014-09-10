@@ -1,10 +1,12 @@
 import argparse
+import logging
 import sys
 
 from open511.converter import open511_convert, FORMATS_LIST, tmdd
 from open511.utils.input import load_path
 
 def convert_cmdline():
+    logging.basicConfig()
     parser = argparse.ArgumentParser(description='Convert an Open511 document to another format.')
     parser.add_argument('-f', '--format', type=str,
         help='Target format: ' + ', '.join(f.name for f in FORMATS_LIST))
