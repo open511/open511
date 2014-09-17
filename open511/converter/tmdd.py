@@ -86,11 +86,21 @@ def _get_roads(c):
         if road_from:
             road['from'] = road_from
 
+        for geo_xp in [
+                'location-on-link/primary-location/geo-location',
+                'location-on-link/secondary-location/geo-location',
+                'geo-location']:
+            for loc in location.xpath(geo_xp):
+                c.add_geo(loc)
+
         if location.xpath('location-on-link/secondary-location'):
             secondary_road_name = _xpath_or_none(location, 'location-on-link/secondary-location/link-name/text()')
             if secondary_road_name and secondary_road_name != road['name']:
-                # FIXME add a new road
-                pass
+                secondary_road = dict(name=secondary_road_name)
+                secondary_road_from = _xpath_or_none(location, 'location-on-link/secondary-location/cross-street-name/cross-street-name-item/text()')
+                if secondary_road_from:
+                    secondary_road['from'] = secondary_road_from
+                roads.append(secondary_road)
             else:
                 road_to = _xpath_or_none(location, 'location-on-link/secondary-location/cross-street-name/cross-street-name-item/text()')
                 if road_to:
@@ -98,12 +108,33 @@ def _get_roads(c):
 
         direction = _xpath_or_none(location, 'location-on-link/link-direction/text()')
         if direction:
-            road['direction'] = direction.upper() # FIXME validate
+            direction = direction.upper()
+            if direction in ('N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'):
+                road['direction'] = direction
+            elif direction.startswith('NOT'):
+                road['direction'] = 'NONE'
+            elif direction.startswith('BOTH'):
+                road['direction'] = 'BOTH'
+            else:
+                logger.warning("Unrecognized direction %s" % direction)
 
         # FIXME lanes
 
         roads.append(road)
     return roads
+
+def _get_geometry(c):
+    if not c.points:
+        return None
+    if len(c.points) == 1:
+        return {
+            "type": "Point",
+            "coordinates": list(c.points)[0]
+        }
+    return {
+        "type": "MultiPoint",
+        "coordinates": list(c.points)
+    }
 
 
 _OPEN511_FIELDS = [
@@ -115,6 +146,7 @@ _OPEN511_FIELDS = [
     ('headline', _get_headline),
     ('description', _get_description),
     ('roads', _get_roads),
+    ('geometry', _get_geometry),
 ]
 
 class TMDDEventConverter(object):
@@ -127,6 +159,7 @@ class TMDDEventConverter(object):
         self.feu = feu
         self.detail = detail
         self.id_suffix = id_suffix
+        self.points = set()
 
     @classmethod
     def list_from_document(cls, doc):
@@ -149,3 +182,19 @@ class TMDDEventConverter(object):
                 self.data[field_name] = val
 
         return self.data
+
+    def add_geo(self, geo_location):
+        """
+        Saves a <geo-location> Element, to be incoporated into the Open511
+        geometry field.
+        """
+        if not geo_location.xpath('latitude') and geo_location.xpath('longitude'):
+            raise Exception("Invalid geo-location %s" % etree.tostring(geo_location))
+        if _xpath_or_none(geo_location, 'horizontal-datum/text()') not in ('wgs84', None):
+            logger.warning("Unsupported horizontal-datum in %s" % etree.tostring(geo_location))
+            return
+        point = (
+            float(_xpath_or_none(geo_location, 'longitude/text()')) / 1000000,
+            float(_xpath_or_none(geo_location, 'latitude/text()')) / 1000000
+        )
+        self.points.add(point)
