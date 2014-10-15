@@ -53,9 +53,9 @@ def convert_to_atom(input, feed_url="http://example.org/open511-feed", feed_titl
         if include_expires:
             tz = event.findtext('timezone')
             tz = pytz.timezone(tz) if tz else pytz.timezone(default_timezone_name)
-            schedule = Schedule(event.find('schedules'), tz)
+            schedule = Schedule.from_element(event.find('schedules'), tz)
             timestamp = now()
-            next_period = schedule.next_period(timestamp)
+            next_period = schedule.next_interval(timestamp)
             if next_period is None:
                 active = False
             else:

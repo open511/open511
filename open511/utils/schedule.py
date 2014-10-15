@@ -15,6 +15,10 @@ def text_to_date(s):
 def text_to_time(s):
     return datetime.time(*[int(x) for x in s.split(':')]) if s else None
 
+def text_to_datetime(s):
+    d, _, t = s.partition('T')
+    return datetime.datetime.combine(text_to_date(d), text_to_time(t))
+
 def _time_text_to_period(t):
     (start, _, end) = t.partition('-')
     return Period(
@@ -23,30 +27,102 @@ def _time_text_to_period(t):
     )
 
 class Schedule(object):
-    """
-    Class for working with schedule components of an Open511 event.
+    """Represent an Open511 <schedule>."""
 
-    The constructor requires two arguments: an lxml Element for the <schedule> tag,
-    and a tzinfo object (ideally from pytz) for the timezone of the event.
-    """
+    def __init__(self):
+        raise Exception("Initialize via from_element, not directly")
+
+    @staticmethod
+    def from_element(root, timezone):
+        """Return a Schedule object based on an lxml Element for the <schedule>
+        tag. timezone is a tzinfo object, ideally from pytz."""
+        assert root.tag == 'schedule'
+        if root.xpath('intervals'):
+            return _ScheduleIntervals(root, timezone)
+        elif root.xpath('recurring_schedules'):
+            return _ScheduleRecurring(root, timezone)
+        raise NotImplementedError
+
+    def to_timezone(self, dt):
+        """Converts a datetime to the timezone of this Schedule."""
+        if timezone.is_aware(dt):
+            return dt.astimezone(self.timezone)
+        else:
+            return timezone.make_aware(dt, self.timezone)
+
+    def intervals(self, range_start=datetime.datetime.min, range_end=datetime.datetime.max):
+        """Returns a list of tuples of start/end datetimes for when the schedule
+        is active during the provided range."""
+        raise NotImplementedError
+
+    def next_interval(self, after=None):
+        """Returns the next Period this event is in effect, or None if the event
+        has no remaining periods."""
+        if after is None:
+            after = timezone.now()
+        after = self.to_timezone(after)
+        return next(self.intervals(range_start=after), None)
+
+    def active_within_range(self, query_start, query_end):
+        """Is the event ever active within the given range?"""
+        return any(self.intervals(query_start, query_end))
+
+    def includes(self, query):
+        """Does this schedule include the provided time?
+        query should be a datetime (naive or timezone-aware)"""
+        query = self.to_timezone(query)
+        return any(self.intervals(range_start=query, range_end=query))
+
+    def has_remaining_intervals(self, after=None):
+        """Is this schedule ever in effect at or after the given time?
+        If no time is given, uses the current time."""
+        return bool(self.next_interval(after))
+
+class _ScheduleIntervals(Schedule):
+    """An Open511 <schedule> that uses <intervals>. Create via Schedule.from_element,
+    not directly."""
 
     def __init__(self, root, timezone):
-        assert root.tag == 'schedules'
         self.root = root
         self.timezone = timezone
-        self.recurring_schedules = [
+        self._intervals = []
+        for interval_data in root.xpath('intervals/interval/text()'):
+            start, end = interval_data.split('/')
+            period = Period(
+                text_to_datetime(start).replace(tzinfo=self.timezone),
+                text_to_datetime(end).replace(tzinfo=self.timezone) if end else None
+            )
+            self._intervals.append(period)
+        self._intervals.sort()
+
+    def intervals(self, range_start=datetime.datetime.min, range_end=datetime.datetime.max):
+        range_start = self.to_timezone(range_start)
+        range_end = self.to_timezone(range_end)
+
+        for period in self._intervals:
+            if period.start <= range_end and (period.end is None or period.end >= range_start):
+                yield period
+
+
+class _ScheduleRecurring(Schedule):
+    """An Open511 <schedule> that uses <recurring_schedules>. Create via Schedule.from_element,
+    not directly."""
+
+    def __init__(self, root, timezone):
+        self.root = root
+        self.timezone = timezone
+        self._recurring_schedules = [
             RecurringScheduleComponent(el, timezone)
-            for el in root.xpath('schedule')
-            if el.xpath('start_date')
+            for el in root.xpath('recurring_schedules/recurring_schedule')
         ]
 
     @property
     @memoize_method
-    def specific_dates(self):
+    def exceptions(self):
         """A dict of dates -> [Period time tuples] representing exceptions
         to the base recurrence pattern."""
         ex = {}
-        for sd in self.root.xpath('schedule/specific_dates/specific_date'):
+        for sd in self.root.xpath('exceptions/exception'):
             bits = str(sd.text).split(' ')
             date = text_to_date(bits.pop(0))
             ex.setdefault(date, []).extend([
@@ -55,11 +131,11 @@ class Schedule(object):
             ])
         return ex
 
-    def specific_dates_periods(self, range_start=datetime.date.min, range_end=datetime.date.max):
-        """Returns a list of Period tuples for each period represented in a <specific_dates>
-        schedule that falls between range_start and range_end."""
+    def exception_periods(self, range_start=datetime.date.min, range_end=datetime.date.max):
+        """Returns a list of Period tuples for each period represented in an <exception>
+        that falls between range_start and range_end."""
         periods = []
-        for exception_date, exception_times in self.specific_dates.items():
+        for exception_date, exception_times in self.exceptions.items():
             if exception_date >= range_start and exception_date <= range_end:
                 for exception_time in exception_times:
                     periods.append(
@@ -70,14 +146,7 @@ class Schedule(object):
                     )
 
         periods.sort()
-        return periods        
-
-    def to_timezone(self, dt):
-        """Converts a datetime to the timezone of this Schedule."""
-        if timezone.is_aware(dt):
-            return dt.astimezone(self.timezone)
-        else:
-            return timezone.make_aware(dt, self.timezone)
+        return periods
 
     def includes(self, query):
         """Does this schedule include the provided time?
@@ -87,7 +156,7 @@ class Schedule(object):
         query_time = query.time()
 
         # Is the provided time an exception for this schedule?
-        specific = self.specific_dates.get(query_date)
+        specific = self.exceptions.get(query_date)
         if specific is not None:
             if len(specific) == 0:
                 # Not in effect on this day
@@ -98,64 +167,31 @@ class Schedule(object):
             return False
 
         # It's not an exception. Is it within a recurring schedule?
-        return any(sched.includes(query_date, query_time) for sched in self.recurring_schedules)
+        return any(sched.includes(query_date, query_time) for sched in self._recurring_schedules)
 
-    def active_within_range(self, query_start, query_end):
-        """Is this event ever active between query_start and query_end,
-        which are (aware or naive) datetimes?"""
-
-        query_start = self.to_timezone(query_start)
-        query_end = self.to_timezone(query_end)
-
-        for range in self.daily_periods(range_start=query_start.date(), range_end=query_end.date()):
-            if (
-                    ((range.start < query_start) and (range.end > query_end))
-                    or (query_start <= range.start <= query_end)
-                    or (query_start <= range.end <= query_end)):
-                return True
-        return False
-
-    def has_remaining_periods(self, after=None):
-        """Is this schedule ever in effect at or after the given time?
-        If no time is given, uses the current time."""
-        if after is None:
-            after = timezone.now()
-        after = self.to_timezone(after)
-        periods = self.daily_periods(range_start=after.date())
-        return any(p for p in periods if p.end > after)
-
-    def next_period(self, after=None):
-        """Returns the next Period this event is in effect, or None if the event
-        has no remaining periods."""
-        if after is None:
-            after = timezone.now()
-        after = self.to_timezone(after)
-        return next((p for p in self.periods(range_start=after.date()) if p.end > after), None)
-
-    def daily_periods(self, range_start=datetime.date.min, range_end=datetime.date.max):
+    def _daily_periods(self, range_start, range_end):
         """Returns an iterator of Period tuples for every day this event is in effect, between range_start
         and range_end."""
-        specific = set(self.specific_dates.keys())
+        specific = set(self.exceptions.keys())
 
-        return heapq.merge(self.specific_dates_periods(range_start, range_end), *[
+        return heapq.merge(self.exception_periods(range_start, range_end), *[
             sched.daily_periods(range_start=range_start, range_end=range_end, exclude_dates=specific)
-            for sched in self.recurring_schedules
+            for sched in self._recurring_schedules
         ])
 
-    def periods(self, range_start=datetime.date.min,
-            range_end=datetime.date.max, max_continuous_days=60):
+    def intervals(self, range_start=datetime.datetime.min, range_end=datetime.datetime.max):
         """Returns an iterator of Period tuples for continuous stretches of time during
-        which this event is in effect, between range_start and range_end.
-
-        daily_periods returns one (or more) Period per day; if this event is continuously
-        in effect for several days, this method will return a single Period for that time.
-        However, Periods will be broken apart after max_continuous_days. This is because
-        the algorithm currently works day-by-day, and so the algorithm would become (nearly)
-        infinitely slow for events without an end date."""
+        which this event is in effect, between range_start and range_end."""
 
         current_period = None
+        max_continuous_days = 60
 
-        for period in self.daily_periods(range_start, range_end):
+        range_start = self.to_timezone(range_start)
+        range_end = self.to_timezone(range_end)
+
+        for period in self._daily_periods(range_start.date(), range_end.date()):
+            if period.end < range_start or period.start > range_end:
+                continue
             if current_period is None:
                 current_period = period
             else:
@@ -172,9 +208,10 @@ class Schedule(object):
 
 
 class RecurringScheduleComponent(object):
+    """Represents an individual <recurring_schedule> within a <schedule>."""
 
     def __init__(self, root, timezone):
-        assert root.tag == 'schedule'
+        assert root.tag == 'recurring_schedule'
         self.root = root
         self.timezone = timezone
 
@@ -214,7 +251,7 @@ class RecurringScheduleComponent(object):
             if current_date.weekday() in weekdays and current_date not in exclude_dates:
                 yield Period(
                     tz.localize(datetime.datetime.combine(current_date, period.start)),
-                    tz.localize(datetime.datetime.combine(current_date, period.end)) 
+                    tz.localize(datetime.datetime.combine(current_date, period.end))
                 )
             current_date += datetime.timedelta(days=1)
 
@@ -222,9 +259,9 @@ class RecurringScheduleComponent(object):
     @memoize_method
     def period(self):
         """A Period tuple representing the daily start and end time."""
-        start_time = self.root.findtext('start_time')
+        start_time = self.root.findtext('daily_start_time')
         if start_time:
-            return Period(text_to_time(start_time), text_to_time(self.root.findtext('end_time')))
+            return Period(text_to_time(start_time), text_to_time(self.root.findtext('daily_end_time')))
         return Period(datetime.time(0, 0), datetime.time(23, 59))
 
     @property
@@ -245,4 +282,4 @@ class RecurringScheduleComponent(object):
     @memoize_method
     def end_date(self):
         """End date of event recurrence, as datetime.date or None."""
-        return text_to_date(self.root.findtext('end_date'))        
+        return text_to_date(self.root.findtext('end_date'))
