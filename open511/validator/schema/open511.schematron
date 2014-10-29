@@ -48,6 +48,11 @@
 		</rule>
 	</pattern>
 	<pattern>
+		<rule context="event/schedule/intervals">
+			<assert test="count(interval[substring-after(text(), '/') = '']) &lt;= 1">Only one interval may omit the end datetime.</assert>
+		</rule>
+	</pattern>
+	<pattern>
 		<rule context="event/roads/road">
 			<assert test="not(state) or (direction)">If state is set, direction must be too.</assert>
 			<assert test="not(lanes_open) or (state/text() = 'SOME_LANES_CLOSED')">If lanes_open is included, state must be SOME_LANES_CLOSED</assert>

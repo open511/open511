@@ -348,17 +348,12 @@
           </optional>
         </interleave>
         <element name="intervals">
-          <choice>
-            <group>
-              <oneOrMore>
-                <ref name="Interval"/>
-              </oneOrMore>
-              <optional>
-                <ref name="IntervalWithoutEnd"/>
-              </optional>
-            </group>
-            <ref name="IntervalWithoutEnd"/>
-          </choice>
+          <oneOrMore>
+            <choice>
+              <ref name="Interval"/>
+              <ref name="IntervalWithoutEnd"/>
+            </choice>
+          </oneOrMore>
         </element>
       </choice>
     </element>

@@ -183,6 +183,12 @@ class _ScheduleRecurring(Schedule):
         """Returns an iterator of Period tuples for continuous stretches of time during
         which this event is in effect, between range_start and range_end."""
 
+        # At the moment the algorithm works on periods split by calendar day, one at a time,
+        # merging them if they're continuous; to avoid looping infinitely for infinitely long
+        # periods, it splits periods as soon as they reach 60 days.
+        # This algorithm could likely be improved to get rid of this restriction and improve
+        # efficiency, so code should not rely on this behaviour.
+
         current_period = None
         max_continuous_days = 60
 

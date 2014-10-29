@@ -113,9 +113,7 @@ Schedule = element schedule {(
 		}?
 	) | (
 		element intervals {
-			(Interval+,
-			IntervalWithoutEnd?)
-			| IntervalWithoutEnd
+			(Interval | IntervalWithoutEnd)+
 		}
 	)}
 
