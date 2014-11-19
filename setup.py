@@ -18,7 +18,7 @@ if 'register' in sys.argv or 'upload' in sys.argv:
 
 setup(
     name = "open511",
-    version = "0.3",
+    version = "0.4",
     url='https://github.com/opennorth/open511',
     packages = find_packages(),
     include_package_data = True,
