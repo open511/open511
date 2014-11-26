@@ -1,3 +1,4 @@
+import itertools
 import logging
 
 from lxml import etree
@@ -136,6 +137,31 @@ def _get_geometry(c):
         "coordinates": list(c.points)
     }
 
+convert_severity = {
+    'none': 1,
+    'minor': 1,
+    'major': 3,
+    'natural-disaster': 3,
+    'other': 0
+}
+convert_impact = {
+    '0': 0, '1': 1, '2': 1, '3': 1, '4': 2, '5': 2, '6': 2, '7': 2, '8': 3, '9': 3, '10': 3
+}
+def _get_severity(c):
+    """
+    1. Collect all <severity> and <impact-level> values.
+    2. Convert impact-level of 1-3 to MINOR, 4-7 to MODERATE, 8-10 to MAJOR
+    3. Map severity -> none to MINOR, natural-disaster to MAJOR, other to UNKNOWN
+    4. Pick the highest severity.
+    """
+    severities = c.feu.xpath('event-indicators/event-indicator/event-severity/text()|event-indicators/event-indicator/severity/text()')
+    impacts = c.feu.xpath('event-indicators/event-indicator/event-impact/text()|event-indicators/event-indicator/impact/text()')
+
+    severities = [convert_severity[s] for s in severities]
+    impacts = [convert_impact[i] for i in impacts]
+
+    return ['UNKNOWN', 'MINOR', 'MODERATE', 'MAJOR'][max(itertools.chain(severities, impacts))]
+
 
 _OPEN511_FIELDS = [
     ('id', _get_id),
@@ -147,6 +173,7 @@ _OPEN511_FIELDS = [
     ('description', _get_description),
     ('roads', _get_roads),
     ('geometry', _get_geometry),
+    ('severity', _get_severity),
 ]
 
 class TMDDEventConverter(object):
