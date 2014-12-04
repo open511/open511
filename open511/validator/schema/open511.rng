@@ -15,26 +15,7 @@
       </attribute>
       <choice>
         <interleave>
-          <!-- The discovery page -->
-          <element name="jurisdictions">
-            <oneOrMore>
-              <ref name="MinimalJurisdiction"/>
-            </oneOrMore>
-          </element>
-          <element name="services">
-            <oneOrMore>
-              <ref name="ServiceDefinition"/>
-            </oneOrMore>
-          </element>
-          <optional>
-            <ref name="SelfLink"/>
-          </optional>
-          <zeroOrMore>
-            <ref name="ForeignElement"/>
-          </zeroOrMore>
-        </interleave>
-        <interleave>
-          <!-- Any other page -->
+          <!-- Any non-discovery page -->
           <choice>
             <element name="events">
               <zeroOrMore>
@@ -83,6 +64,25 @@
           <zeroOrMore>
             <ref name="Link"/>
           </zeroOrMore>
+          <zeroOrMore>
+            <ref name="ForeignElement"/>
+          </zeroOrMore>
+        </interleave>
+        <interleave>
+          <!-- The discovery page -->
+          <element name="jurisdictions">
+            <oneOrMore>
+              <ref name="MinimalJurisdiction"/>
+            </oneOrMore>
+          </element>
+          <element name="services">
+            <oneOrMore>
+              <ref name="ServiceDefinition"/>
+            </oneOrMore>
+          </element>
+          <optional>
+            <ref name="SelfLink"/>
+          </optional>
           <zeroOrMore>
             <ref name="ForeignElement"/>
           </zeroOrMore>

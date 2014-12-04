@@ -8,19 +8,7 @@ start =
 		attribute version { "v1" },
 		(
 			(
-			# The discovery page
-			element jurisdictions {
-				MinimalJurisdiction+
-			}
-			& element services {
-				ServiceDefinition+
-			}
-			& SelfLink?
-			& ForeignElement*
-			)
-		|
-		(
-			# Any other page
+				# Any non-discovery page
 				(
 					element events { RoadEvent* } | 
 					element areas { Area* } | 
@@ -34,6 +22,18 @@ start =
 				& Pagination?
 				& Link*
 				& ForeignElement*
+			)
+		|
+			(
+			# The discovery page
+			element jurisdictions {
+				MinimalJurisdiction+
+			}
+			& element services {
+				ServiceDefinition+
+			}
+			& SelfLink?
+			& ForeignElement*
 			)
 		)
 	}
