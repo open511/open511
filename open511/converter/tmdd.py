@@ -1,5 +1,6 @@
 import itertools
 import logging
+import os
 
 from lxml import etree
 
@@ -13,7 +14,7 @@ def tmdd_to_json(doc):
     converters = TMDDEventConverter.list_from_document(doc)
     events = [converter.to_json() for converter in converters]
     return {
-        "meta": dict(version='v0'),
+        "meta": dict(version='v1'),
         "events": events
     }
 
@@ -21,7 +22,7 @@ def _xpath_or_none(el, query):
     result = el.xpath(query)
     return result[0] if result else None
 
-def _tmdd_datetime_to_iso(dt, require_offset=True):
+def _tmdd_datetime_to_iso(dt, include_offset=True, include_seconds=True):
     """
     dt is an xml Element with <date>, <time>, and optionally <offset> children.
     returns an ISO8601 string
@@ -31,13 +32,16 @@ def _tmdd_datetime_to_iso(dt, require_offset=True):
     assert len(datestring) == 8
     assert len(timestring) >= 6
     iso = datestring[0:4] + '-' + datestring[4:6] + '-' + datestring[6:8] + 'T' \
-        + timestring[0:2] + ':' + timestring[2:4] + ':' + timestring[4:6]
-    offset = dt.findtext('offset')
-    if offset:
-        assert len(offset) == 5
-        iso += offset[0:3] + ':' + offset[3:5]
-    elif require_offset:
-        raise Exception("TMDD date is not timezone-aware: %s" % etree.tostring(dt))
+        + timestring[0:2] + ':' + timestring[2:4]
+    if include_seconds:
+        iso += ':' + timestring[4:6]
+    if include_offset:
+        offset = dt.findtext('offset')
+        if offset:
+            assert len(offset) == 5
+            iso += offset[0:3] + ':' + offset[3:5]
+        else:
+            raise Exception("TMDD date is not timezone-aware: %s" % etree.tostring(dt))
     return iso
 
 def _get_status(c):
@@ -47,10 +51,10 @@ def _get_status(c):
     return 'ARCHIVED' if active_flag in ('no', '2') else 'ACTIVE'
 
 def _get_id(c):
-    source_id = c.feu.xpath('event-reference/event-id/text()')[0]
+    id = c.source_id = c.feu.xpath('event-reference/event-id/text()')[0]
     if c.id_suffix:
-        source_id += '-%s' % c.id_suffix
-    return '/'.join((c.jurisdiction_id, source_id))
+        id += '-%s' % c.id_suffix
+    return '/'.join((c.jurisdiction_id, id))
 
 def _get_updated(c):
     return _tmdd_datetime_to_iso(c.feu.xpath('event-reference/update-time')[0])
@@ -59,7 +63,20 @@ def _get_headline(c):
     names = c.detail.xpath('event-name/text()')
     if names:
         return names[0]
-    return "NO HEADLINE"
+    return _generate_automatic_headline(c)
+
+def _generate_automatic_headline(c):
+    """The only field that maps closely to Open511 <headline>, a required field, is optional
+    in TMDD. So we sometimes need to generate our own."""
+    # Start with the event type, e.g. "Incident"
+    headline = c.data['event_type'].replace('_', ' ').title()
+    if c.data['roads']:
+        # Add the road name
+        headline += ' on ' + c.data['roads'][0]['name']
+        direction = c.data['roads'][0].get('direction')
+        if direction and direction not in ('BOTH', 'NONE'):
+            headline += ' ' + direction
+    return headline
 
 def _get_description(c):
     detail_descriptions = c.detail.xpath('event-descriptions/event-description/additional-text/description/text()')
@@ -109,22 +126,98 @@ def _get_roads(c):
 
         direction = _xpath_or_none(location, 'location-on-link/link-direction/text()')
         if direction:
-            direction = direction.upper()
-            if direction in ('N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'):
+            direction = _convert_direction(direction)
+            if direction:
                 road['direction'] = direction
-            elif direction.startswith('NOT'):
-                road['direction'] = 'NONE'
-            elif direction.startswith('BOTH'):
-                road['direction'] = 'BOTH'
-            else:
-                logger.warning("Unrecognized direction %s" % direction)
-
-        # FIXME lanes
 
         roads.append(road)
+
+    if len(roads) == 1:
+        _update_road_with_lanes(c, roads[0])
     return roads
 
-def _get_geometry(c):
+def _convert_direction(direction):
+    direction = direction.upper()
+    if direction in ('N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'):
+        return direction
+    elif direction.startswith('NOT'):
+        return 'NONE'
+    elif direction.startswith('BOTH'):
+        return 'BOTH'
+    else:
+        logger.warning("Unrecognized direction %s" % direction)
+
+def _update_road_with_lanes(c, road):
+    lane_els = c.detail.xpath('event-lanes/event-lane[lane-status/text()]')
+    if not lane_els:
+        return
+
+    directions = set()
+    for lane_el in lane_els:
+        for direction in lane_el.xpath('link-direction/text()'):
+            directions.add(direction)
+    if len(directions) > 1:
+        return logger.warning("Multiple link-directions in lanes, cannot process")
+    elif len(directions) == 0 and not road.get('direction'):
+        return logger.warning("No direction provided, either in road or lane data")
+
+    if len(directions) == 1 and road.get('direction'):
+        # Make sure directions match
+        direction = next(iter(directions)).upper()
+        if not (direction == road.get('direction')
+                or (road.get('direction') == 'BOTH' and direction.startswith('BOTH'))):
+            return logger.warning("Road direction does not match lane direction %s" % direction)
+    elif len(directions) == 1 and not road.get('direction'):
+        road['direction'] = _convert_direction(direction)
+
+    lanes_open = 0
+    lanes_closed = 0
+
+    for lane_el in lane_els:
+        status = lane_el.findtext('lane-status').lower()
+
+        if status.startswith('reduced-to'):
+            if len(lane_els) > 1:
+                return logger.warning("Cannot process lane status of %s with multiple event-lanes" % status)
+            if status.startswith('reduced-to-one'):
+                lanes_open = 1
+            elif status.startswith('reduced-to-two'):
+                lanes_open = 2
+            elif status.startswith('reduce-to-three'):
+                lanes_open = 3
+            else:
+                raise NotImplementedError
+        else:
+            lanes_affected = _xpath_or_none(lane_el, 'lanes-total-affected/text()')
+            total_lanes = _xpath_or_none(lane_el, 'lanes-total-original/text()')
+            if not lanes_affected and total_lanes:
+                return logger.warning("Cannot process lane data without lanes-total-affected and lanes-total-original")
+            lanes_affected = int(lanes_affected)
+            total_lanes = int(total_lanes)
+            assert total_lanes >= lanes_affected
+
+            if status.starswith('closed') or status.startswith('blocked') or status == 'collapse' or status == 'out':
+                lanes_closed += lanes_affected
+                lanes_open += (total_lanes - lanes_affected)
+            elif status.startswith('open') or status == 'cleared-from-road' or status.startswith('reopened'):
+                lanes_open += lanes_affected
+            else:
+                return logger.warning("Unrecognize lane-status %s" % status)
+
+            if lanes_closed == lanes_open == 0:
+                return logger.warning("Couldn't find any affected lanes")
+
+            if lanes_open >= lanes_closed:
+                road['state'] = 'ALL_LANES_OPEN'
+            elif lanes_open == 0:
+                road['state'] = 'CLOSED'
+            else:
+                road['state'] = 'SOME_LANES_CLOSED'
+                road['lanes_closed'] = lanes_closed
+                road['lanes_open'] = lanes_open
+
+
+def _get_geography(c):
     if not c.points:
         return None
     if len(c.points) == 1:
@@ -162,6 +255,82 @@ def _get_severity(c):
 
     return ['UNKNOWN', 'MINOR', 'MODERATE', 'MAJOR'][max(itertools.chain(severities, impacts))]
 
+def _get_event_type(c):
+    planned_class = _xpath_or_none(c.feu, 'event-indicators/event-indicator/planned-event-class/text()')
+    return {
+        'incident': 'INCIDENT',
+        'construction': 'CONSTRUCTION',
+        'event': 'SPECIAL_EVENT',
+        'other': 'SPECIAL_EVENT' # is this right?
+    }.get(planned_class)
+
+def _get_certainty(c):
+    certainty = _xpath_or_none(c.detail, 'confidence-level/text()')
+    if certainty is None:
+        return None
+    if certainty.isdigit():
+        certainty = int(certainty)
+    else:
+        certainty = dict(zip(
+                ('unconfirmed-report', 'two-unconfirmed-reports', 'three-unconfirmed-reports',
+                'four-or-more-unconfirmed-reports', 'provisional-plan', 'firm-plan',
+                'official-report-from-scene', 'detailed-official-report-from-scene',
+                'detailed-official-reports-covering-whole-area', 'legally-enforced-decision'),
+                range(1, 10)
+            ))[certainty.lower()]
+    if certainty == 1:
+        return 'POSSIBLE'
+    elif certainty <= 4:
+        return 'LIKELY'
+    else:
+        return 'OBSERVED'
+
+def _get_grouped(c):
+    other_ids = set()
+    if c.number_in_group > 1:
+        for n in range(c.number_in_group):
+            if n != c.id_suffix:
+                other_ids.add(c.source_id + '-%s' % n)
+    for reference_type in ['responsible-event', 'related-event', 'merged-event', 'sibling-event']:
+        for other_id in c.feu.xpath('other-references/' + reference_type + '/event-id/text()'):
+            other_ids.add(other_id)
+    if not other_ids:
+        return None
+    return [
+        c.base_url + c.jurisdiction_id + '/' + other_id
+        for other_id in other_ids
+    ]
+
+def _get_event_subtypes(c):
+    subtypes = set()
+    for subtype in c.feu.xpath('event-headline/headline/accidents-and-incidents/text()'):
+        if 'accident' in subtype:
+            subtypes.add('ACCIDENT')
+        if 'spill' in subtype:
+            subtypes.add('SPILL')
+    return list(subtypes)
+
+def _get_schedule(c):
+    start_time = (
+        c.detail.xpath('event-times/start-time[date/text()]')
+        or c.detail.xpath('event-times/expected-start-time[date/text()]')
+        or c.detail.xpath('event-times/alternate-start-time[date/text()]')
+        or c.detail.xpath('event-times/update-time[date/text()]')
+        or c.feu.xpath('event-reference/update-time[date/text()]')
+    )
+    assert start_time
+    start_time = _tmdd_datetime_to_iso(start_time[0], include_offset=False, include_seconds=False)
+
+    end_time = (
+        c.detail.xpath('event-times/expected-end-time[date/text()]')
+        or c.detail.xpath('event-times/valid-period/expected-end-time[date/text()]')
+        or c.detail.xpath('event-times/alternate-end-time[date/text()]')
+    )
+    end_time = _tmdd_datetime_to_iso(end_time[0], include_offset=False, include_seconds=False) if end_time else ''
+
+    return {
+        'intervals': [start_time + '/' + end_time]
+    }
 
 _OPEN511_FIELDS = [
     ('id', _get_id),
@@ -169,23 +338,30 @@ _OPEN511_FIELDS = [
     ('jurisdiction_url', lambda c: c.jurisdiction_url),
     ('status', _get_status),
     ('updated', _get_updated),
-    ('headline', _get_headline),
+    ('created', _get_updated), # We don't have a separate created timestamp
     ('description', _get_description),
     ('roads', _get_roads),
-    ('geometry', _get_geometry),
+    ('geography', _get_geography),
     ('severity', _get_severity),
+    ('event_type', _get_event_type),
+    ('certainty', _get_certainty),
+    ('grouped_events', _get_grouped),
+    ('event_subtypes', _get_event_subtypes),
+    ('schedule', _get_schedule),
+    ('headline', _get_headline),
 ]
 
 class TMDDEventConverter(object):
 
-    jurisdiction_url = 'http://fake-jurisdiction'
-    jurisdiction_id = 'fake.jurisdiction'
-    base_url = 'http://fake-jurisdiction/events/'
+    jurisdiction_url = os.environ.get('OPEN511_JURISDICTION_URL', 'https://example.org/example-jurisdiction')
+    jurisdiction_id = os.environ.get('OPEN511_JURISDICTION_ID', 'example.jurisdiction')
+    base_url = os.environ.get('OPEN511_EVENTS_URL', 'https://example.org/events/')
 
-    def __init__(self, feu, detail, id_suffix=None):
+    def __init__(self, feu, detail, id_suffix=None, number_in_group=1):
         self.feu = feu
         self.detail = detail
         self.id_suffix = id_suffix
+        self.number_in_group = number_in_group
         self.points = set()
 
     @classmethod
@@ -196,8 +372,9 @@ class TMDDEventConverter(object):
         """
         objs = []
         for feu in doc.xpath('//FEU'):
-            for idx, detail in enumerate(feu.xpath('event-element-details/event-element-detail')):
-                objs.append(cls(feu, detail, id_suffix=idx))
+            detail_els = feu.xpath('event-element-details/event-element-detail')
+            for idx, detail in enumerate(detail_els):
+                objs.append(cls(feu, detail, id_suffix=idx, number_in_group=len(detail_els)))
         return objs
 
     def to_json(self):
