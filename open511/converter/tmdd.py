@@ -6,10 +6,6 @@ from lxml import etree
 
 logger = logging.getLogger(__name__)
 
-def is_tmdd(doc):
-    # Does a given etree Element represent a TMDD document?
-    return bool(doc.xpath('//FEU'))
-
 def tmdd_to_json(doc):
     converters = TMDDEventConverter.list_from_document(doc)
     events = [converter.to_json() for converter in converters]

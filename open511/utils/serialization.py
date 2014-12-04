@@ -40,10 +40,19 @@ def make_link(rel, href):
     l.set('href', href)
     return l
 
+def is_tmdd(doc):
+    # Does a given etree Element represent a TMDD document?
+    return doc.tag != 'open511' and bool(doc.xpath('//FEU'))
+
 def deserialize(s):
     s = s.strip()
     try:
-        return (etree.fromstring(s), 'xml')
+        doc = etree.fromstring(s)
+        if is_tmdd(doc):
+            # Transparently convert the TMDD on deserialize
+            from ..converter.tmdd import tmdd_to_json
+            return (tmdd_to_json(doc), 'json')
+        return (doc, 'xml')
     except etree.XMLSyntaxError:
         try:
             return (json.loads(s), 'json')
