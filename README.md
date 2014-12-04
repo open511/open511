@@ -12,6 +12,8 @@ Clone this repository, then run `python setup.py install`
     
     open511-validate http://demo.open511.org/api/events/
 
+    open511-convert --help
+
     open511-convert filename.xml > filename.json
 
     open511-convert filename.json > filename.xml
