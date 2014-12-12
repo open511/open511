@@ -1,0 +1,154 @@
+<wrapper>
+  <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mes="http://www.tmdd.org/3/messages">
+     <soapenv:Header/>
+     <soapenv:Body>
+        <mes:eventRequestMsg>
+           <!--Optional:-->
+           <authentication>
+              <user-id>me</user-id>
+              <password>me</password>
+              <!--Optional:-->
+              <operator-id>me</operator-id>
+              <!--You may enter ANY elements at this point-->
+           </authentication>
+           <request-header>
+              <organization-requesting>
+                 <organization-id>me</organization-id>
+              </organization-requesting>
+              <!--Optional:-->
+              <organizations-requested>
+                 <organizations-requested-item>
+                    <organization-id>Orgname</organization-id>
+                 </organizations-requested-item>
+              </organizations-requested>
+              <message-type-version>2</message-type-version>
+              <message-number>2</message-number>
+              <message-time-stamp>
+                 <date>20100401</date>
+                 <time>1440</time>
+              </message-time-stamp>
+           </request-header>
+           <request-type>
+              <request-focus>all event updates</request-focus>
+           </request-type>
+        </mes:eventRequestMsg>
+     </soapenv:Body>
+  </soapenv:Envelope>
+
+
+<FEU>
+   <message-header>
+      <organization-sending>
+         <organization-id>Orgid</organization-id> 
+      </organization-sending>
+      <message-type-version>2</message-type-version>
+      <message-number>1</message-number> 
+      <message-time-stamp>
+         <date>20100421</date> 
+         <time>092741</time>
+         <offset>-0400</offset>
+      </message-time-stamp>
+   </message-header>
+   <event-reference>
+      <event-id>91</event-id> 
+      <event-update>2</event-update> -->
+      <update-time>
+         <date>20100421</date> 
+         <time>092105</time>
+         <offset>-0400</offset>
+      </update-time>
+   </event-reference>
+   <event-indicators> 
+      <event-indicator>
+         <planned-event-class>incident</planned-event-class> 
+         <active-flag>yes</active-flag> 
+         <impact-level>0</impact-level> 
+         <duration-exceeded-flag>no</duration-exceeded-flag> 
+         <severity>major</severity> 
+         <priority-level>1</priority-level> 
+         <status>current</status> 
+      </event-indicator>
+   </event-indicators>
+   <event-headline>
+      <headline>
+         <accidents-and-incidents>accident</accidents-and-incidents>
+      </headline>
+   </event-headline>
+   <event-element-details> 
+      <event-element-detail>
+         <event-descriptions> 
+            <event-description>
+               <additional-text>
+                  <description>Test -- accident on I-1</description> 
+               </additional-text>
+            </event-description>
+         </event-descriptions>
+         <event-locations>
+            <event-location> 
+               <location-on-link>
+                  <link-name>I-1</link-name>
+                  <primary-location>
+                     <geo-location> 
+                        <latitude>34009630</latitude> 
+                        <longitude>-111153118</longitude>
+                     </geo-location>
+                     <link-name>I-1</link-name> 
+                     <cross-street-name>
+                        <cross-street-name-item>Mile 1</cross-street-name-item>
+                     </cross-street-name>
+                     <landmark-type>unknown</landmark-type>
+                  </primary-location>
+                  <secondary-location> 
+                     <geo-location>
+                        <latitude>34009630</latitude>
+                        <longitude>-111153118</longitude>
+                     </geo-location>
+                     <link-name>I-1</link-name>
+                     <cross-street-name>
+                        <cross-street-name-item>Mile 2</cross-street-name-item>
+                     </cross-street-name>
+                     <landmark-type>unknown</landmark-type>
+                  </secondary-location>
+                  <link-direction>w</link-direction>
+               </location-on-link>
+            </event-location>
+         </event-locations>
+         <event-times> 
+            <update-time>
+               <date>20100421</date> 
+               <time>092105</time>
+               <offset>-0400</offset>
+            </update-time>
+            <valid-period>
+               <expected-end-time>
+                  <date>20100421</date>
+                  <time>102000</time>
+                  <offset>-0400</offset>
+               </expected-end-time>
+            </valid-period>
+            <start-time> 
+               <date>20100421</date>
+               <time>090000</time>
+               <offset>-0400</offset>
+            </start-time>
+            <expected-end-time>  
+               <date>20100421</date>
+               <time>102000</time>
+               <offset>-0400</offset>
+            </expected-end-time>
+         </event-times>
+         <event-name>Test Incident 1234</event-name> 
+         <event-lanes>
+            <event-lane>
+               <link-direction>w</link-direction>
+               <lanes-total-original>5</lanes-total-original>
+               <event-lanes-affected>
+                  <lanes>5</lanes>
+                  <lanes>4</lanes>
+               </event-lanes-affected>
+            </event-lane>
+         </event-lanes>
+      </event-element-detail>
+   </event-element-details>
+</FEU> 
+</wrapper>

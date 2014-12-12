@@ -1,0 +1,157 @@
+{
+    "meta": {
+        "version": "v1"
+    }, 
+    "events": [
+        {
+            "status": "ACTIVE", 
+            "updated": "2012-04-16T09:07:00-07:00", 
+            "jurisdiction_url": "https://example.org/example-jurisdiction", 
+            "created": "2012-04-16T09:07:00-07:00", 
+            "url": "https://example.org/events/example.jurisdiction/1681", 
+            "severity": "MINOR", 
+            "schedule": {
+                "intervals": [
+                    "2012-04-16T09:07/"
+                ]
+            }, 
+            "event_type": "SPECIAL_EVENT", 
+            "headline": "Special Event on I-1 S", 
+            "roads": [
+                {
+                    "direction": "S", 
+                    "from": "INTERSECTION HWY", 
+                    "name": "I-1"
+                }
+            ], 
+            "id": "example.jurisdiction/1681", 
+            "geography": {
+                "type": "Point", 
+                "coordinates": [
+                    -117.070234, 
+                    33.07385
+                ]
+            }
+        }, 
+        {
+            "status": "ACTIVE", 
+            "updated": "2012-04-16T09:07:00-07:00", 
+            "jurisdiction_url": "https://example.org/example-jurisdiction", 
+            "created": "2012-04-16T09:07:00-07:00", 
+            "url": "https://example.org/events/example.jurisdiction/1690", 
+            "severity": "MINOR", 
+            "schedule": {
+                "intervals": [
+                    "2012-04-16T08:56/2012-04-16T09:41"
+                ]
+            }, 
+            "event_type": "INCIDENT", 
+            "headline": "Incident on SR-1 W", 
+            "roads": [
+                {
+                    "direction": "W", 
+                    "from": "GEORGE ST", 
+                    "name": "SR-1"
+                }
+            ], 
+            "id": "example.jurisdiction/1690", 
+            "geography": {
+                "type": "Point", 
+                "coordinates": [
+                    -117.152077, 
+                    32.837947
+                ]
+            }
+        }, 
+        {
+            "status": "ACTIVE", 
+            "updated": "2012-04-16T09:07:00-07:00", 
+            "jurisdiction_url": "https://example.org/example-jurisdiction", 
+            "created": "2012-04-16T09:07:00-07:00", 
+            "url": "https://example.org/events/example.jurisdiction/1699", 
+            "severity": "MINOR", 
+            "schedule": {
+                "intervals": [
+                    "2012-04-16T09:05/2012-04-16T10:05"
+                ]
+            }, 
+            "event_type": "INCIDENT", 
+            "headline": "Incident on I-1 S", 
+            "roads": [
+                {
+                    "direction": "S", 
+                    "from": "PEACH PKWY", 
+                    "name": "I-1"
+                }
+            ], 
+            "id": "example.jurisdiction/1699", 
+            "geography": {
+                "type": "Point", 
+                "coordinates": [
+                    -117.156074, 
+                    33.252916
+                ]
+            }
+        }, 
+        {
+            "status": "ACTIVE", 
+            "updated": "2012-04-16T09:07:00-07:00", 
+            "jurisdiction_url": "https://example.org/example-jurisdiction", 
+            "created": "2012-04-16T09:07:00-07:00", 
+            "url": "https://example.org/events/example.jurisdiction/1486", 
+            "severity": "MINOR", 
+            "schedule": {
+                "intervals": [
+                    "2012-04-16T09:06/2012-04-16T10:06"
+                ]
+            }, 
+            "event_type": "INCIDENT", 
+            "headline": "Incident on I-1 N", 
+            "roads": [
+                {
+                    "direction": "N", 
+                    "from": "SAN FABRICADO", 
+                    "name": "I-1"
+                }
+            ], 
+            "id": "example.jurisdiction/1486", 
+            "geography": {
+                "type": "Point", 
+                "coordinates": [
+                    -117.078652, 
+                    33.023068
+                ]
+            }
+        }, 
+        {
+            "status": "ACTIVE", 
+            "updated": "2012-04-16T09:07:00-07:00", 
+            "jurisdiction_url": "https://example.org/example-jurisdiction", 
+            "created": "2012-04-16T09:07:00-07:00", 
+            "url": "https://example.org/events/example.jurisdiction/1006", 
+            "severity": "MINOR", 
+            "schedule": {
+                "intervals": [
+                    "2012-04-16T08:14/2012-04-16T09:14"
+                ]
+            }, 
+            "event_type": "INCIDENT", 
+            "headline": "Incident on I-1 N", 
+            "roads": [
+                {
+                    "direction": "N", 
+                    "from": "SR-2", 
+                    "name": "I-1"
+                }
+            ], 
+            "id": "example.jurisdiction/1006", 
+            "geography": {
+                "type": "Point", 
+                "coordinates": [
+                    -117.152661, 
+                    32.808837
+                ]
+            }
+        }
+    ]
+}

@@ -330,7 +330,7 @@ def _get_schedule(c):
 
 _OPEN511_FIELDS = [
     ('id', _get_id),
-    ('self_url', lambda c: c.base_url + c.data['id']),
+    ('url', lambda c: c.base_url + c.data['id']),
     ('jurisdiction_url', lambda c: c.jurisdiction_url),
     ('status', _get_status),
     ('updated', _get_updated),

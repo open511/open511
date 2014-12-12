@@ -1,0 +1,42 @@
+{
+    "meta": {
+        "version": "v1"
+    }, 
+    "events": [
+        {
+            "status": "ACTIVE", 
+            "event_subtypes": [
+                "ACCIDENT"
+            ], 
+            "updated": "2010-04-21T09:21:05-04:00", 
+            "jurisdiction_url": "https://example.org/example-jurisdiction", 
+            "created": "2010-04-21T09:21:05-04:00", 
+            "url": "https://example.org/events/example.jurisdiction/91", 
+            "severity": "MAJOR", 
+            "schedule": {
+                "intervals": [
+                    "2010-04-21T09:00/2010-04-21T10:20"
+                ]
+            }, 
+            "event_type": "INCIDENT", 
+            "headline": "Test Incident 1234", 
+            "roads": [
+                {
+                    "to": "Mile 2", 
+                    "direction": "W", 
+                    "from": "Mile 1", 
+                    "name": "I-1"
+                }
+            ], 
+            "geography": {
+                "type": "Point", 
+                "coordinates": [
+                    -111.153118, 
+                    34.00963
+                ]
+            }, 
+            "id": "example.jurisdiction/91", 
+            "description": "Test -- accident on I-1"
+        }
+    ]
+}
