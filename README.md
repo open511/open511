@@ -2,9 +2,15 @@ Some utilities for the [Open511 API](http://www.open511.org/) format. Includes a
 
 [![Build Status](https://travis-ci.org/opennorth/open511.png)](https://travis-ci.org/opennorth/open511)
 
+## Requirements
+
+Python 2.7 or 3.4, libxml2. Linux or MacOS. (It might work on Windows, but hasn't been tested. We'd be happy to work with anyone interested in running this on Windows.)
+
 ## Installation
 
-Clone this repository, then run `python setup.py install`
+This package is a Python application. The current best practice is to install into an isolated Python environment, created with the `virtualenv` package for Python 2, or `pyvenv` for Python 3. Things should still work if you don't create an environment, but you may need to run the setup commands below as root.
+
+Clone this repository, then run `python setup.py install`. Or, to install the latest released version, run `easy_install open511`.
 
 ## Usage
 
@@ -17,6 +23,22 @@ Clone this repository, then run `python setup.py install`
     open511-convert filename.xml > filename.json
 
     open511-convert filename.json > filename.xml
+
+## Conversions
+
+Available output formats: Open511 JSON (`json`), Open511 XML (`xml`), [MASAS](https://www.masas-x.ca/en/)-compatible Atom (`atom`), [KML](https://developers.google.com/kml/) (`kml`)
+
+Input formats: Open511 XML or JSON, and [Traffic Management Data Dictionary](http://www.ite.org/standards/tmdd/) (TMDD) XML
+
+You can convert from any input format to any output format, e.g. `open511-convert input.tmdd -f kml output.kml`
+
+## TMDD
+
+Due to the size and complexity of the TMDD specification, some input files may not be supported. Please contact us if you have problems with a particular TMDD input file, and we'll try to get it working!
+
+To produce production-ready Open511 XML from TMDD, you need to specify provide some information on your Open511 deployment via environment variables. Set `OPEN511_EVENTS_URL` to the URL to your Open511 events endpoint, `OPEN511_JURISDICTION_URL` to the URL of the appropriate Open511 jurisdiction resource, and `OPEN511_JURISDICTION_ID` to the Open511 ID of your jurisdiction. If these are not set, example values will be used.
+
+More details on the conversion algorithm is in [tmdd-summary.md](tmdd-summary.md).
 
 # Web interface
 
