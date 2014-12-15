@@ -38,7 +38,7 @@ Due to the size and complexity of the TMDD specification, some input files may n
 
 To produce production-ready Open511 XML from TMDD, you need to specify provide some information on your Open511 deployment via environment variables. Set `OPEN511_EVENTS_URL` to the URL to your Open511 events endpoint, `OPEN511_JURISDICTION_URL` to the URL of the appropriate Open511 jurisdiction resource, and `OPEN511_JURISDICTION_ID` to the Open511 ID of your jurisdiction. If these are not set, example values will be used.
 
-More details on the conversion algorithm is in [tmdd-summary.md](tmdd-summary.md).
+More details on the conversion algorithm is in [docs](docs).
 
 # Web interface
 
