@@ -86,7 +86,7 @@ def _reverse_gml_coords(s):
 
 def gml_to_geojson(el):
     """Given an lxml Element of a GML geometry, returns a dict in GeoJSON format."""
-    if el.get('srsName') != 'urn:ogc:def:crs:EPSG::4326':
+    if el.get('srsName') not in ('urn:ogc:def:crs:EPSG::4326', None):
         if el.get('srsName') == 'EPSG:4326':
             return _gmlv2_to_geojson(el)
         else:
