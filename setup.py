@@ -14,11 +14,11 @@ if 'register' in sys.argv or 'upload' in sys.argv:
         import pypandoc
         description = pypandoc.convert('README.md', 'rst')
     except (IOError, ImportError):
-            description = open('README.md').read()
+        description = open('README.md').read()
 
 setup(
     name = "open511",
-    version = "0.4",
+    version = "0.5",
     url='https://github.com/open511/open511',
     packages = find_packages(),
     include_package_data = True,
@@ -32,14 +32,14 @@ setup(
             'open511-convert = open511.converter.cmdline:convert_cmdline'
         ]
     },
-    author = 'Open North',
+    author = 'Michael Mulley',
     author_email = 'open511@opennorth.ca',
     license='MIT',
     classifiers = [
          'Development Status :: 4 - Beta',
          'Intended Audience :: Developers',
          'Programming Language :: Python :: 2.7',
-         'Programming Language :: Python :: 3.4',
+         'Programming Language :: Python :: 3.5',
          'License :: OSI Approved :: MIT License',
     ],
     description = 'Tools supporting the Open511 format, which aims to make road information open and shareable.',

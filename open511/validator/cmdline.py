@@ -1,3 +1,8 @@
+try:
+    unicode
+except NameError:
+    unicode = str
+
 import argparse
 import sys
 

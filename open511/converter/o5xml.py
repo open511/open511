@@ -1,3 +1,8 @@
+try:
+    unicode
+except NameError:
+    unicode = str
+
 import json
 
 from lxml import etree
@@ -40,9 +45,9 @@ def json_struct_to_xml(json_obj, root, custom_namespace=None):
 
     Takes a dict deserialized from JSON, returns an lxml Element.
 
-    This won't provide a confirming document if you pass in a full JSON document;
+    This won't provide a conforming document if you pass in a full JSON document;
     it's for translating little fragments, and is mostly used internally."""
-    if isinstance(root, basestring):
+    if isinstance(root, (str, unicode)):
         if root.startswith('!'):
             root = etree.Element('{%s}%s' % (NS_PROTECTED, root[1:]))
         elif root.startswith('+'):
@@ -54,9 +59,9 @@ def json_struct_to_xml(json_obj, root, custom_namespace=None):
     if root.tag in ('attachments', 'grouped_events', 'media_files'):
         for link in json_obj:
             root.append(json_link_to_xml(link))
-    elif isinstance(json_obj, basestring):
+    elif isinstance(json_obj, (str, unicode)):
         root.text = json_obj
-    elif isinstance (json_obj, (int, float, long)):
+    elif isinstance(json_obj, (int, float)):
         root.text = unicode(json_obj)
     elif isinstance(json_obj, dict):
         if frozenset(json_obj.keys()) == frozenset(('type', 'coordinates')):
